@@ -595,6 +595,19 @@ contains
     real(r8), intent(out) :: noy_nitrogen_flx(ncol) ! kgN/m2/sec
     type(physics_buffer_desc), pointer :: pbuf(:)
 
+    !!!change by rt!!!
+    real(r8), intent(in) :: mmr_prod_out_soa_lv_from_dms(ncol,pver)
+    real(r8), intent(in) :: mmr_prod_out_soa_sv_from_dms(ncol,pver)
+    real(r8), intent(in) :: mmr_dms_mo_gas_phase(ncol,pver)
+    real(r8), intent(in) :: vmr_prod_out_soa_lv_from_dms(ncol,pver)
+    real(r8), intent(in) :: vmr_prod_out_soa_sv_from_dms(ncol,pver)
+    real(r8), intent(in) :: vmr_dms_mo_gas_phase(ncol,pver)
+    real(r8), intent(in)  :: mmr_soa_lv(ncol,pver)
+    real(r8), intent(in)  :: vmr_soa_lv(ncol,pver)
+    real(r8) , intent(in) :: mmr_soa_sv(ncol,pver)
+    real(r8) , intent(in) :: vmr_soa_sv(ncol,pver)
+    !!!end change by rt!!!
+
 #ifdef OSLO_AERO
     real(r8), dimension(:,:), pointer  :: cloudTracerField
     integer                            :: cloudTracerIndex
@@ -659,7 +672,20 @@ contains
 
     call outfld( 'AREA', area(:ncol),   ncol, lchnk )
     call outfld( 'MASS', mass(:ncol,:), ncol, lchnk )
+   !!!change by rt!!! 
+    call outfld ('prodlv1',mmr_prod_out_soa_lv_from_dms(:ncol,:), ncol, lchnk)
+    call outfld ('prodsv1',mmr_prod_out_soa_sv_from_dms(:ncol,:), ncol, lchnk)
+    call outfld ('dms1',mmr_dms_mo_gas_phase(:ncol,:),ncol, lchnk)
+    call outfld ('vmrlv1',vmr_prod_out_soa_lv_from_dms(:ncol,:), ncol, lchnk)
+    call outfld ('vmrsv1',vmr_prod_out_soa_sv_from_dms(:ncol,:), ncol, lchnk)
+    call outfld ('vmrdms1',vmr_dms_mo_gas_phase(:ncol,:),ncol, lchnk)
 
+    
+    call outfld ('lvmo_ms', mmr_soa_lv(:ncol,:),ncol, lchnk)
+    call outfld ('lvmo_vs', vmr_soa_lv(:ncol,:),ncol, lchnk)
+    call outfld ('svmo_ms', mmr_soa_lv(:ncol,:),ncol, lchnk)
+    call outfld ('svmo_vs',  vmr_soa_lv(:ncol,:),ncol, lchnk)
+    !!!end change by rt!!! 
 #ifdef OSLO_AERO
    cb_aerosol_type(:,:) = 0.0_r8
    mmr_aerosol_type(:,:,:) = 0.0_r8

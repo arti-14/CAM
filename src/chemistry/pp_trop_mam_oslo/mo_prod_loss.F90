@@ -1,37 +1,55 @@
-      module mo_prod_loss
+module mo_prod_loss
+      
       use shr_kind_mod, only : r8 => shr_kind_r8
       private
       public :: exp_prod_loss
       public :: imp_prod_loss
+      
       contains
+      
       subroutine exp_prod_loss( prod, loss, y, rxt, het_rates )
       use ppgrid, only : pver
       implicit none
-!--------------------------------------------------------------------
-! ... dummy args
-!--------------------------------------------------------------------
+      
+      !--------------------------------------------------------------------
+      ! ... dummy args
+      !--------------------------------------------------------------------
       real(r8), dimension(:,:,:), intent(out) :: &
             prod, &
             loss
       real(r8), intent(in) :: y(:,:,:)
       real(r8), intent(in) :: rxt(:,:,:)
       real(r8), intent(in) :: het_rates(:,:,:)
+
+ 
       end subroutine exp_prod_loss
-      subroutine imp_prod_loss( prod, loss, y, rxt, het_rates )
+
+      subroutine imp_prod_loss( prod, loss, y, rxt, het_rates,&
+                                prod_soa_lv_from_dms, prod_soa_sv_from_dms )
       use ppgrid, only : pver
       implicit none
-!--------------------------------------------------------------------
-! ... dummy args
-!--------------------------------------------------------------------
+      !--------------------------------------------------------------------
+      ! ... dummy args
+      !--------------------------------------------------------------------
       real(r8), dimension(:), intent(out) :: &
             prod, &
             loss
       real(r8), intent(in) :: y(:)
       real(r8), intent(in) :: rxt(:)
       real(r8), intent(in) :: het_rates(:)
-!--------------------------------------------------------------------
-! ... loss and production for Implicit method
-!--------------------------------------------------------------------
+
+      !!!change by rt!!!
+      real(r8),intent(out) :: prod_soa_lv_from_dms
+      real(r8),intent(out) :: prod_soa_sv_from_dms
+      !!!end change by rt!!!
+      
+      !!!change by rt!!!
+      prod_soa_lv_from_dms = 0.
+      prod_soa_sv_from_dms = 0.
+      !!!end change by rt!!!
+      !--------------------------------------------------------------------
+      ! ... loss and production for Implicit method
+      !--------------------------------------------------------------------
          loss(1) = ( + rxt(4) + rxt(5) + rxt(7) + het_rates(3))* y(3)
          prod(1) = 0._r8
          loss(2) = ( + rxt(6) + het_rates(1))* y(1)
@@ -86,12 +104,14 @@
          prod(26) =.029_r8*rxt(7)*y(3) +.150_r8*rxt(8)*y(28)
          loss(27) = ( + het_rates(27))* y(27)
          prod(27) = (.050_r8*rxt(11) +.050_r8*rxt(12) +.050_r8*rxt(13))*y(29) &
-                  + (.150_r8*rxt(9) +.150_r8*rxt(10))*y(28) +.114_r8*rxt(7)*y(3)
+                  + (.150_r8*rxt(9) +.150_r8*rxt(10))*y(28) +.114_r8*rxt(7)*y(3) 
          loss(28) = ( + rxt(8) + rxt(9) + rxt(10) + het_rates(28))* y(28)
          prod(28) = 0._r8
          loss(29) = ( + rxt(11) + rxt(12) + rxt(13) + het_rates(29))* y(29)
          prod(29) = 0._r8
          loss(30) = ( + het_rates(30))* y(30)
          prod(30) =rxt(3)*y(4)
+         prod_soa_lv_from_dms = .029_r8*rxt(7)*y(3)
+         prod_soa_sv_from_dms = .114_r8*rxt(7)*y(3) 
       end subroutine imp_prod_loss
       end module mo_prod_loss

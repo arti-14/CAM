@@ -823,7 +823,32 @@ end function chem_is_active
 
     call addfld( 'HEIGHT',     (/ 'ilev' /),'A','m',       'geopotential height above surface at interfaces (m)' )
     call addfld( 'CT_H2O_GHG', (/ 'lev' /), 'A','kg/kg/s', 'ghg-chem h2o source/sink' )
+    
+    !!!change by rt!!!
+    call addfld( 'prodlv1',(/ 'lev' /), 'I', 'kg/kg', 'soa_lv produced from DMS oxidation' )
+    call addfld( 'prodsv1',      (/ 'lev' /), 'I', 'kg/kg', 'soa_sv produced from DMS oxidation' )
+    call addfld( 'dms1',      (/ 'lev' /), 'I', 'kg/kg', 'DMS before the oxidation  routine' )
+    call addfld( 'vmrlv1',(/ 'lev' /), 'I', 'mol/mol', 'soa_lv produced from DMS oxidation' )
+    call addfld( 'vmrsv1',      (/ 'lev' /), 'I', 'mol/mol', 'soa_sv produced from DMS oxidation' )
+    call addfld( 'vmrdms1',      (/ 'lev' /), 'I', 'mol/mol', 'DMS before the oxidation  routine' )
+    call addfld( 'lvmo_ms',(/ 'lev' /), 'I', 'kg/kg', 'soa_lv in the mo_gas_phase_chemdr ' )
+    call addfld( 'lvmo_vs',      (/ 'lev' /), 'I', 'mol/mol', 'soa_lv in the mo_gas_phase_chemdr' )
+    call addfld( 'svmo_ms',(/ 'lev' /), 'I', 'kg/kg', 'soa_sv in the mo_gas_phase_chemdr ' )
+    call addfld( 'svmo_vs',      (/ 'lev' /), 'I', 'mol/mol', 'soa_sv in the mo_gas_phase_chemdr' )
 
+    call add_default ('prodlv1', 1, ' ')
+    call add_default ('prodsv1', 1, ' ')
+    call add_default ('dms1', 1, ' ')
+
+    call add_default ('vmrlv1', 1, ' ')
+    call add_default ('vmrsv1', 1, ' ')
+    call add_default ('vmrdms1', 1, ' ')
+
+    call add_default ('lvmo_ms', 1, ' ')
+    call add_default ('lvmo_vs', 1, ' ')
+    call add_default ('svmo_ms', 1, ' ')
+    call add_default ('svmo_vs', 1, ' ') 
+    !!!end change by rt!!!
 !-----------------------------------------------------------------------
 ! Set names of chemistry variable tendencies and declare them as history variables
 !-----------------------------------------------------------------------

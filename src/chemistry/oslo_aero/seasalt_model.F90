@@ -213,6 +213,10 @@ subroutine oslo_salt_emis_intr(state, cam_in)
        OMOceanSource(:ncol) = spracklenOMOceanSource(:ncol)
     endif
 
+    !!!zeroing the seasalt added to model!!!
+    do n=1,numberOfSaltModes
+      cam_in%cflx(:ncol, tracerMap(n)) = 0.
+    enddo
     return
   end subroutine oslo_salt_emis_intr
 

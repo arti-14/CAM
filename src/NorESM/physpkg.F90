@@ -753,6 +753,8 @@ contains
     use cam_abortutils,     only: endrun
     use nudging,            only: Nudge_Model, nudging_init
 
+
+    use time_manager,      only : get_curr_date
     ! Input/output arguments
     type(physics_state), pointer       :: phys_state(:)
     type(physics_tend ), pointer       :: phys_tend(:)
@@ -763,6 +765,9 @@ contains
     ! local variables
     integer :: lchnk
     integer :: ierr
+
+    integer  :: ncdate1,ncsec1,yr1,tod1,mon1,day1
+    
 
     !-----------------------------------------------------------------------
 
@@ -938,6 +943,12 @@ contains
     ! Initialize qneg3 and qneg4
     call qneg_init()
 
+    call get_curr_date (yr1,mon1,day1,ncsec1)
+    ncdate1 = yr1*10000 + mon1*100 + day1
+
+    open(unit=12345,file='phys_init_call_time_check',action='write',position='append')
+    write(12345,*) ncdate1,ncsec1
+    close(12345)
   end subroutine phys_init
 
   !

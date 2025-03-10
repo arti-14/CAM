@@ -946,9 +946,9 @@ contains
     call get_curr_date (yr1,mon1,day1,ncsec1)
     ncdate1 = yr1*10000 + mon1*100 + day1
 
-    open(unit=12345,file='phys_init_call_time_check',action='write',position='append')
-    write(12345,*) ncdate1,ncsec1
-    close(12345)
+    !open(unit=12345,file='phys_init_call_time_check',action='write',position='append')
+    write(*,*) ncdate1,ncsec1
+    !close(12345)
   end subroutine phys_init
 
   !

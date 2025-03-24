@@ -290,7 +290,9 @@ subroutine oslo_dms_emis_intr(state, cam_in)
       ! collect dms data from file
       flux(:) = 0._r8
       odms(:) = 0._r8
-      odms(:ncol) = oceanspcs(1)%fields(1)%data(:ncol,1,lchnk) 
+
+      !!!switching off the DMS for the sensitivity studies!!
+      odms(:ncol) = 0._r8!oceanspcs(1)%fields(1)%data(:ncol,1,lchnk) 
 
       ! open ocean
       open_ocn(:ncol) = ocnfrc(:ncol) * (1._r8-icefrc(:ncol))
@@ -309,13 +311,16 @@ subroutine oslo_dms_emis_intr(state, cam_in)
          kwdms(:ncol) = open_ocn(:ncol) * Xconvxa *u10m(:ncol)**2*(660./scdms(:ncol))**0.5 
          flux (:ncol) = 62.13*kwdms(:ncol)*1e-9*odms(:ncol)
       endif
-      cam_in%cflx(:ncol, pndx_fdms  )  = flux(:ncol) 
+
+      !!!switching off the DMS for the sensitivity studies!!
+      cam_in%cflx(:ncol, pndx_fdms  )  = 0._r8!flux(:ncol) 
 
       call outfld('odms', odms(:ncol), ncol, lchnk)
 
    ! IF OCEAN FLUX
    elseif(dms_source=='ocean_flux') then 
-      cam_in%cflx(:ncol, pndx_fdms)  =  cam_in%fdms(:ncol)
+      !!!switching off the DMS for the sensitivity studies!!
+      cam_in%cflx(:ncol, pndx_fdms)  = 0._r8! cam_in%fdms(:ncol)
    endif
 
    ! IF EMISSION FILE

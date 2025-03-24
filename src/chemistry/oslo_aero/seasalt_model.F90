@@ -208,9 +208,11 @@ subroutine oslo_salt_emis_intr(state, cam_in)
                                  cam_in%cflx(:ncol, tracerMap(2)), &
                                  cam_in%cflx(:ncol, tracerMap(3)), &
                                  open_ocean ,ncol,lchnk,  onOMOceanSource )
-       OMOceanSource(:ncol) = onOMOceanSource(:ncol)
+       !switching off the POA                          
+       OMOceanSource(:ncol) = 0._r8!onOMOceanSource(:ncol)
     else
-       OMOceanSource(:ncol) = spracklenOMOceanSource(:ncol)
+       !switching off the POA                          
+       OMOceanSource(:ncol) = 0._r8!spracklenOMOceanSource(:ncol)
     endif
 
     return

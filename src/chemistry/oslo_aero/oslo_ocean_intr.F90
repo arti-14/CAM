@@ -371,7 +371,8 @@ subroutine oslo_opom_emis_intr(em_ss1,em_ss2,em_ss3,open_ocn,ncol,lchnk, opomem_
       flux(:ncol) = c_n*open_ocn(:ncol)*opoc(:ncol)* &
                     (c_a1*em_ss1(:ncol)+c_a2*em_ss2(:ncol)+c_a3*em_ss3(:ncol))
 
-      opomem_out(:ncol) = flux(:ncol)
+      !!!Setting the POA emis as zero.
+      opomem_out(:ncol) = 0._r8!flux(:ncol)
 
 
    ! O'Dowd parameterisation
@@ -386,7 +387,8 @@ subroutine oslo_opom_emis_intr(em_ss1,em_ss2,em_ss3,open_ocn,ncol,lchnk, opomem_
       omFrac(:ncol) = min(0.01_r8*(43.5_r8 * ochlor(:ncol) + 13.805_r8),0.76_r8)
       omFrac(:ncol) = omFrac(:ncol) / (1._r8 - omFrac(:ncol))
       flux(:ncol)   = c_o*omFrac(:ncol) * em_ss1(:ncol)  
-      opomem_out(:ncol) = flux(:ncol)
+      !!!Setting the POA emis as zero.
+      opomem_out(:ncol) = 0._r8!flux(:ncol)
    endif
 
    ! return?

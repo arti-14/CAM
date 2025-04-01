@@ -83,10 +83,16 @@
          loss(25) = ( + het_rates(25))* y(25)
          prod(25) = 0._r8
          loss(26) = ( + het_rates(26))* y(26)
-         prod(26) =.029_r8*rxt(7)*y(3) +.150_r8*rxt(8)*y(28)
+         prod(26) =.150_r8*rxt(8)*y(28) !+ .029_r8*rxt(7)*y(3) -- production of SOA_LV from dms is removed DMS + OH ->  .75*SO2 + .5*HO2 + 0.029*SOA_LV + 0.114*SOA_SV 
+
+         !prod(26) =.029_r8*rxt(7)*y(3) +.150_r8*rxt(8)*y(28)
          loss(27) = ( + het_rates(27))* y(27)
+         !prod(27) = (.050_r8*rxt(11) +.050_r8*rxt(12) +.050_r8*rxt(13))*y(29) &
+         !         + (.150_r8*rxt(9) +.150_r8*rxt(10))*y(28) +.114_r8*rxt(7)*y(3)
+
          prod(27) = (.050_r8*rxt(11) +.050_r8*rxt(12) +.050_r8*rxt(13))*y(29) &
-                  + (.150_r8*rxt(9) +.150_r8*rxt(10))*y(28) +.114_r8*rxt(7)*y(3)
+                    + (.150_r8*rxt(9) +.150_r8*rxt(10))*y(28) !+.114_r8*rxt(7)*y(3) -- production of SOA_SV from dms is removed DMS + OH ->  .75*SO2 + .5*HO2 + 0.029*SOA_LV + 0.114*SOA_SV 
+
          loss(28) = ( + rxt(8) + rxt(9) + rxt(10) + het_rates(28))* y(28)
          prod(28) = 0._r8
          loss(29) = ( + rxt(11) + rxt(12) + rxt(13) + het_rates(29))* y(29)

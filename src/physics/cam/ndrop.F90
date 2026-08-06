@@ -260,6 +260,7 @@ subroutine ndrop_init
    call addfld('NDROPSRC', (/ 'lev' /), 'A', '#/kg/s', 'Droplet number source')
    call addfld('NDROPSNK', (/ 'lev' /), 'A', '#/kg/s', 'Droplet number loss by microphysics')
    call addfld('NDROPCOL', horiz_only,  'A', '#/m2', 'Column droplet number')
+   call addfld('CLDInc', (/ 'lev' /), 'A', '1', 'Increase in cloud fraction')
 
    ! set the add_default fields
    if (history_amwg) then
@@ -428,8 +429,10 @@ subroutine dropmixnuc( &
    character*200 fieldnamegas
 
    logical  :: called_from_spcam
-   !-------------------------------------------------------------------------------
+   real(r8) :: ncloud_increase(pcols,pver) 
 
+   !-------------------------------------------------------------------------------
+   ncloud_increase = 0.
    sq2pi = sqrt(2._r8*pi)
 
    lchnk = state%lchnk
@@ -684,6 +687,7 @@ subroutine dropmixnuc( &
          cldn_tmp = lcldn(i,k)
 
          if (cldn_tmp-cldo_tmp > 0.01_r8) then
+            ncloud_increase(i,k) = 1.
 
             ! rce-comment - use wtke at layer centers for new-cloud activation
             wbar  = wtke_cen(i,k)
@@ -1156,6 +1160,7 @@ subroutine dropmixnuc( &
    call outfld('NDROPSRC', nsource,  pcols, lchnk)
    call outfld('NDROPMIX', ndropmix, pcols, lchnk)
    call outfld('WTKE    ', wtke,     pcols, lchnk)
+   call outfld('CLDInc', ncloud_increase, pcols, lchnk)
 
    if(called_from_spcam) then
         call outfld('SPLCLOUD  ', cldn    , pcols, lchnk   )

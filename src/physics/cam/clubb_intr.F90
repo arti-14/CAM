@@ -172,7 +172,9 @@ module clubb_intr
     prer_evap_idx, &    ! rain evaporation rate
     qrl_idx, &          ! longwave cooling rate
     radf_idx , &
-    qsatfac_idx         ! subgrid cloud water saturation scaling factor 
+    qsatfac_idx, &         ! subgrid cloud water saturation scaling factor 
+    wu_emulator_idx,&     !updraft velocity calculated by the emulator
+    pemu_mask_idx !emulator mask -1.0= not used, 1.0_d = used
  
   integer, public :: & 
     ixthlp2 = 0, &
@@ -245,6 +247,7 @@ module clubb_intr
        call cnst_add(trim(cnst_names(7)),0._r8,0._r8,-999999._r8,ixwp3,longname='CLUBB 3rd moment vert velocity',cam_outfld=.false.)
        call cnst_add(trim(cnst_names(8)),0._r8,0._r8,0._r8,ixup2,longname='CLUBB 2nd moment u wind',cam_outfld=.false.)
        call cnst_add(trim(cnst_names(9)),0._r8,0._r8,0._r8,ixvp2,longname='CLUBB 2nd moment v wind',cam_outfld=.false.)
+
     end if
 
     !  put pbuf_add calls here (see macrop_driver.F90 for sample) use indicies defined at top
@@ -281,6 +284,10 @@ module clubb_intr
     call pbuf_add_field('RTM',        'global', dtype_r8, (/pcols,pverp,dyn_time_lvls/), rtm_idx)
     call pbuf_add_field('UM',         'global', dtype_r8, (/pcols,pverp,dyn_time_lvls/), um_idx)
     call pbuf_add_field('VM',         'global', dtype_r8, (/pcols,pverp,dyn_time_lvls/), vm_idx)
+
+    call pbuf_add_field('WU_EMULATOR',        'global', dtype_r8, (/pcols,pver/),wu_emulator_idx )
+    call pbuf_add_field('pemu_mask',        'global', dtype_r8, (/pcols/),             pemu_mask_idx)
+
 
 #endif 
 
@@ -889,6 +896,12 @@ end subroutine clubb_init_cnst
 
     call addfld ('QSATFAC',          (/ 'lev' /),  'A', '-', 'Subgrid cloud water saturation scaling factor')
     call addfld ('KVH_CLUBB',        (/ 'ilev' /), 'A', 'm2/s', 'CLUBB vertical diffusivity of heat/moisture on interface levels')
+
+    call addfld ('WU_EMU',      (/'lev'/), 'A', 'm/s',    'Vertical Velocity calc. from emulator')
+    call addfld ('PEMU_1',         (/'lev'/), 'A', '-',    'updraft emulator mask used')
+    call addfld ('PEMUn_1',         (/'lev'/), 'A', '-',    'up. emul. called and cloud does not fit ')
+    call addfld ('PEMU_0',         (/'lev'/), 'A', '-',    'updraft emulator mask not used')
+
  
     !  Initialize statistics, below are dummy variables
     dum1 = 300._r8
@@ -949,6 +962,11 @@ end subroutine clubb_init_cnst
        call add_default('SL',               1, ' ')
        call add_default('QT',               1, ' ')
        call add_default('CONCLD',           1, ' ')
+       call add_default('WU_EMU',        1, ' ')
+       call add_default('PEMU_1',        1, ' ')
+       call add_default('PEMUn_1',        1, ' ')
+       call add_default('PEMU_0',        1, ' ')
+
 
     end if
 
@@ -992,6 +1010,10 @@ end subroutine clubb_init_cnst
        call pbuf_set_field(pbuf2d, tke_idx,     0.0_r8)
        call pbuf_set_field(pbuf2d, kvh_idx,     0.0_r8)
        call pbuf_set_field(pbuf2d, radf_idx,    0.0_r8)
+       call pbuf_set_field(pbuf2d, wu_emulator_idx, 0.0_r8)
+       call pbuf_set_field(pbuf2d, pemu_mask_idx, 0.0_r8)
+
+
 
     endif
   
@@ -1040,7 +1062,14 @@ end subroutine clubb_init_cnst
    use cam_abortutils, only: endrun
    use cam_logfile,    only: iulog
    use tropopause,     only: tropopause_findChemTrop
-      
+   !!--updraft--emulator---!!
+   use time_manager,        only: get_curr_calday
+   use phys_grid,          only: get_rlat_all_p, get_rlon_all_p
+   use cam_control_mod,    only: eccen, mvelpp, lambm0, obliqr
+   use shr_orb_mod,        only: shr_orb_decl, shr_orb_cosz
+   use mo_emulator,         only: emulator
+   !!--updraft--emulator---!!
+
 #ifdef CLUBB_SGS
    use hb_diff,                   only: pblintd
    use scamMOD,                   only: single_column,scm_clubb_iop_name
@@ -1088,6 +1117,7 @@ end subroutine clubb_init_cnst
    real(r8),            intent(in)    :: cmfmc(pcols,pverp)       ! convective mass flux--m sub c           [kg/m2/s]
    integer,             intent(in)    :: cld_macmic_num_steps     ! number of mac-mic iterations
    integer,             intent(in)    :: macmic_it                ! number of mac-mic iterations
+   integer, parameter ::  dp = selected_real_kind(13,300)
     
    ! ---------------------- !
    ! Input-Output Auguments !
@@ -1319,6 +1349,10 @@ end subroutine clubb_init_cnst
    real(r8), pointer :: dnlfzm(:,:) ! ZM detrained convective cloud water num concen.
    real(r8), pointer :: dnifzm(:,:) ! ZM detrained convective cloud ice num concen.
 
+!updraft emulator vars
+   real(r8), pointer, dimension(:,:) :: wu_emulator      ! vertical velocity from emulator [m/s]
+   REAL(dp), pointer, dimension(:) :: pemu_mask    ! emulator mask 
+
    real(r8)                          :: stend(pcols,pver)
    real(r8)                          :: qvtend(pcols,pver)
    real(r8)                          :: qctend(pcols,pver)
@@ -1326,6 +1360,7 @@ end subroutine clubb_init_cnst
    real(r8)                          :: fqtend(pcols,pver)
    real(r8)                          :: rhmini(pcols)
    real(r8)                          :: rhmaxi(pcols)
+   real(r8)                          :: shf_emulator(pcols) !!sensible heat flux calculation for emulator
    integer                           :: troplev(pcols)
    logical                           :: lqice(pcnst)
    logical                           :: apply_to_surface
@@ -1338,6 +1373,22 @@ end subroutine clubb_init_cnst
 
    character(len=*), parameter :: subr='clubb_tend_cam'
 
+   real(r8) :: calday          ! current calendar day
+   real(r8) :: clat(pcols)     ! current latitudes(radians)
+   real(r8) :: clon(pcols)     ! current longitudes(radians)
+   real(r8) :: eccf            ! Earth orbit eccentricity factor
+   real(r8) :: delta           ! Solar declination angle  in radians
+   real(r8) :: coszrs(pcols)   ! Cosine solar zenith angle
+   logical, parameter :: cosz_rad_call=.true. !+tht
+   ! averaging time interval for zenith angle
+   real(r8) :: dt_avg = 0._r8
+
+   REAL(dp):: pwsigma(pcols,pver) ! Standard deviation of vertical wind [m/s]
+   ! Contains constant values as input, stratocumulus points will be updated by emulator
+   !REAL(dp):: pemu_mask(pcols)    ! emulator mask 
+   REAL(dp):: pemu_cb(pcols,pver),pemu_1(pcols,pver),pemu_0(pcols,pver),pemun_1(pcols,pver)	    ! Mask for single layer stratocumulus cloud base (3D variable)   
+   REAL(dp):: cldice_emulator(pcols,pver)	    ! Mask for single layer stratocumulus cloud base (3D variable)   
+   
 #endif
    det_s(:)   = 0.0_r8
    det_ice(:) = 0.0_r8
@@ -1760,7 +1811,7 @@ end subroutine clubb_init_cnst
       !  Set-up CLUBB core at each CLUBB call because heights can change
       call setup_grid_heights_api(l_implemented, grid_type, zi_g(2), &
            zi_g(1), zi_g, zt_g)
-
+ 
       call setup_parameters_api(zi_g(2), clubb_params, nlev+1, grid_type, &
         zi_g, zt_g, err_code)
  
@@ -2612,6 +2663,63 @@ end subroutine clubb_init_cnst
    !  END CLOUD FRACTION DIAGNOSIS, begin to store variables back into buffer          !
    ! --------------------------------------------------------------------------------- !  
  
+   ! ------------------------------------------------- !
+   ! Updraft emulator implementation                   !
+   shf_emulator = 0._r8
+   !pwsigma = 0._r8
+   !pemu_mask = 0._r8
+   !pemu_cb = 0._r8
+   shf_emulator(1:ncol) = cam_in%shf(1:ncol)/(cpair*rho_ds_zm(1))       ! Sensible heat flux
+
+
+   ! Cosine solar zenith angle for current time step
+   calday = get_curr_calday()
+   call get_rlat_all_p(lchnk, ncol, clat)
+   call get_rlon_all_p(lchnk, ncol, clon)
+
+   call shr_orb_decl(calday, eccen, mvelpp, lambm0, obliqr, &
+                     delta, eccf)
+   do i = 1, ncol
+      coszrs(i) = shr_orb_cosz(calday, clat(i), clon(i), delta, dt_avg, cosz_rad_call) !+tht
+   end do
+   ! ------------------------------------------------- !
+   call pbuf_get_field(pbuf, wu_emulator_idx,     wu_emulator)
+   call pbuf_get_field(pbuf, pemu_mask_idx,     pemu_mask)
+
+   !cldice_emulator = 0._r8
+   !call emulator(1,ncol, ncol, 1, pver, pverp, &
+   !               state1%pint(:,:), state1%pmid(:,:), &
+   !               rcm_in_layer,cldice_emulator,state1%q(i,k,ixq),&
+   !               cloud_frac,shf_emulator(1:ncol), coszrs, th(1:ncol,:),&
+   !               pwsigma(1:ncol,:), pemu_mask(1:ncol), pemu_cb(1:ncol,:))
+                  
+   call emulator(1,ncol, ncol, 1, pver, pverp, &
+                  state1%pint(:,:), state1%pmid(:,:), &
+                  state1%q(:,:,ixcldliq),state1%q(:,:,ixcldice),state1%q(:,:,ixq),&
+                  cloud_frac,shf_emulator(1:ncol), coszrs, th(1:ncol,:),&
+                  pwsigma(1:ncol,:), pemu_mask(1:ncol), pemu_cb(1:ncol,:))
+
+   do i = 1,ncol
+      !do k = 1, pver
+      if (int(pemu_mask(i)) >0.) then
+         pemu_1(i,:) = int(1.)
+         pemun_1(i,:) = int(0)
+         pemu_0(i,:) = int(0)
+      elseif (int(pemu_mask(i)) < 0.) then
+         pemu_1(i,:) = int(0.)
+         pemun_1(i,:) = int(1)
+         pemu_0(i,:) = int(0)
+      else
+         pemu_1(i,:) = int(0)
+         pemun_1(i,:) = int(0)
+         pemu_0(i,:) = int(1)
+      endif
+   enddo
+
+   wu_emulator(1:ncol,:) = pwsigma(1:ncol,:)
+   ! ------------------------------------------------- !
+   ! Updraft emulator ends                             !
+   ! ------------------------------------------------- !
    !  Output calls of variables goes here
    call outfld( 'RELVAR',           relvar,                  pcols, lchnk )
    call outfld( 'RHO_CLUBB',        rho,                     pcols, lchnk )
@@ -2656,6 +2764,10 @@ end subroutine clubb_init_cnst
    call outfld( 'CONCLD',           concld,                  pcols, lchnk )
    call outfld( 'CLUBB_GRID_SIZE',  grid_dx,                 pcols, lchnk )
    call outfld( 'QSATFAC',          qsatfac,                 pcols, lchnk)
+   call outfld( 'WU_EMU',        wu_emulator,                     pcols, lchnk )
+   call outfld( 'PEMU_1',        pemu_1,                     pcols, lchnk )
+   call outfld( 'PEMUn_1',        pemun_1,                     pcols, lchnk )
+   call outfld( 'PEMU_0',        pemu_0,                     pcols, lchnk )
 
    !  Output CLUBB history here
    if (l_stats) then 

@@ -2696,7 +2696,7 @@ end subroutine clubb_init_cnst
    call emulator(1,ncol, ncol, 1, pver, pverp, &
                   state1%pint(:,:), state1%pmid(:,:), &
                   state1%q(:,:,ixcldliq),state1%q(:,:,ixcldice),state1%q(:,:,ixq),&
-                  cloud_frac,shf_emulator(1:ncol), coszrs, th(1:ncol,:),&
+                  cloud_frac,cam_in%shf(1:ncol), coszrs, th(1:ncol,:),&
                   pwsigma(1:ncol,:), pemu_mask(1:ncol), pemu_cb(1:ncol,:))
 
    do i = 1,ncol

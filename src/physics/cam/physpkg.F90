@@ -1316,7 +1316,7 @@ contains
     real(r8), pointer, dimension(:,:) :: dtcore
     real(r8), pointer, dimension(:,:) :: ast     ! relative humidity cloud fraction
 
-    !tht: variables for dme_energy_adjust 
+    !tht: variables for dme_energy_adjust
     real(r8):: eflx(pcols), dsema(pcols)
     logical, parameter:: ohf_adjust =.true.  ! condensates have surface specific enthalpy
 
@@ -1626,8 +1626,8 @@ contains
 !+tht
    !call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_cldliq, tmp_cldice, &
    !     qini, cldliqini, cldiceini)
-    call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_t, tmp_cldliq, tmp_cldice, &
-         qini, cldliqini, cldiceini, eflx, dsema) 
+    call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_cldliq, tmp_cldice, &
+         qini, cldliqini, cldiceini, eflx=eflx, dsema=dsema, tmp_t=tmp_t)
 !-tht
 
     call clybry_fam_set( ncol, lchnk, map2chm, state%q, pbuf )

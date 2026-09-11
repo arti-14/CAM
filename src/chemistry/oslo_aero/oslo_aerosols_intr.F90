@@ -386,7 +386,7 @@ contains
                rad_aer(1:ncol,:top_lev-1) = 0._r8
              end if
              rad_aer(1:ncol,top_lev:) = 0.5_r8*dgncur_awet(1:ncol,top_lev:,m)   &
-                                 *exp(1.5_r8*(logSigma))
+                                 *exp(1.5_r8*(logSigma**2))
 
              ! dens_aer(1:ncol,:) = wet density (kg/m3)
              if(top_lev.gt.1)then
@@ -427,7 +427,7 @@ contains
                   rad_aer(1:ncol, top_lev-1) = 0.0_r8
                 end if
                 rad_aer(1:ncol,top_lev:) = 0.5_r8*dgncur_awet_processmode(1:ncol,top_lev:,processModeMap(mm))   &
-                                 *exp(1.5_r8*(logSigma))
+                                 *exp(1.5_r8*(logSigma**2))
                 call modal_aero_depvel_part( ncol, state%t(:,:), state%pmid(:,:), ram1, fv,  & 
                            vlc_dry(:,:,jvlc), vlc_trb(:,jvlc), vlc_grv(:,:,jvlc),  &
                            rad_aer(:,:), dens_aer(:,:), sg_aer(:,:), 3, lchnk)

@@ -83,6 +83,8 @@ integer :: wp2_idx = -1
 integer :: ast_idx = -1
 integer :: cldo_idx = -1
 integer :: dgnumwet_idx = -1
+integer :: wu_emulator_idx = -1
+integer :: pemu_mask_idx = -1
 
 ! Bulk aerosols
 character(len=20), allocatable :: aername(:)
@@ -176,6 +178,8 @@ subroutine microp_aero_init
       tke_idx      = pbuf_get_index('tke')   
    case ('CLUBB_SGS')
       wp2_idx = pbuf_get_index('WP2_nadv')
+      wu_emulator_idx = pbuf_get_index('WU_EMULATOR')
+      pemu_mask_idx = pbuf_get_index('pemu_mask')
    case default
       kvh_idx      = pbuf_get_index('kvh')
    end select
@@ -386,6 +390,8 @@ subroutine microp_aero_run ( &
    real(r8), pointer :: kvh(:,:)        ! vertical eddy diff coef (m2 s-1)
    real(r8), pointer :: tke(:,:)        ! TKE from the UW PBL scheme (m2 s-2)
    real(r8), pointer :: wp2(:,:)        ! CLUBB vertical velocity variance
+   real(r8), pointer :: wu_emulator(:,:)        ! CLUBB vertical velocity variance
+   REAL(dp), pointer :: pemu_mask(:)    ! emulator mask 
 
    real(r8), pointer :: cldn(:,:)       ! cloud fraction
    real(r8), pointer :: cldo(:,:)       ! old cloud fraction
@@ -513,6 +519,8 @@ subroutine microp_aero_run ( &
    case ('CLUBB_SGS')
       itim_old = pbuf_old_tim_idx()
       call pbuf_get_field(pbuf, wp2_idx, wp2, start=(/1,1,itim_old/),kount=(/pcols,pverp,1/))
+      call pbuf_get_field(pbuf, wu_emulator_idx, wu_emulator, start=(/1,1,itim_old/),kount=(/pcols,pverp,1/))
+      call pbuf_get_field(pbuf, pemu_mask_idx, pemu_mask, start=(/1,1,itim_old/),kount=(/pcols,1/))
       allocate(tke(pcols,pverp))
       tke(:ncol,:) = (3._r8/2._r8)*wp2(:ncol,:)
 
@@ -529,6 +537,10 @@ subroutine microp_aero_run ( &
 
          select case (trim(eddy_scheme))
          case ('diag_TKE', 'CLUBB_SGS')
+         if (pemu_mask(i) > 0.) then
+               !--using updraft velocity from emulator--!
+               wsub(i,k) = wu_emulator(i,k)
+            else
             wsub(i,k) = sqrt(0.5_r8*(tke(i,k) + tke(i,k+1))*(2._r8/3._r8))
             wsub(i,k) = min(wsub(i,k),10._r8)
          case default 

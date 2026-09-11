@@ -11,10 +11,6 @@ module physpkg
   ! Nov 2010    A. Gettelman   Put micro/macro physics into separate routines
   !-----------------------------------------------------------------------
 
-#ifdef OSLO_AERO
-#include <preprocessorDefinitions.h>
-#endif
-
   use shr_kind_mod,     only: r8 => shr_kind_r8
   use spmd_utils,       only: masterproc
   use physconst,        only: latvap, latice, rh2o
@@ -74,8 +70,8 @@ module physpkg
   integer ::  cldliqini_idx      = 0
   integer ::  cldiceini_idx      = 0
 !AL
-  integer ::  cldncini_idx       = 0 
-  integer ::  cldniini_idx       = 0 
+  integer ::  cldncini_idx       = 0
+  integer ::  cldniini_idx       = 0
 !AK
   integer ::  prec_str_idx       = 0
   integer ::  snow_str_idx       = 0
@@ -1334,7 +1330,7 @@ contains
     real(r8) :: tmp_cldni(pcols,pver) ! tmp space
 !AL
 
-    !tht: variables for dme_energy_adjust 
+    !tht: variables for dme_energy_adjust
     real(r8):: eflx(pcols), dsema(pcols)
     logical, parameter:: ohf_adjust =.true.  ! condensates have surface specific enthalpy
 
@@ -1652,7 +1648,7 @@ contains
    !call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_cldliq, tmp_cldice, &
    !     qini, cldliqini, cldiceini)
      call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_t, tmp_cldliq, tmp_cldice, &
-          tmp_cldnc,tmp_cldni,qini, cldliqini, cldiceini, cldncini, cldniini, eflx, dsema ) 
+          tmp_cldnc,tmp_cldni,qini, cldliqini, cldiceini, cldncini, cldniini, eflx, dsema )
 !AL-tht
 
     call clybry_fam_set( ncol, lchnk, map2chm, state%q, pbuf )
@@ -1732,7 +1728,7 @@ contains
 #ifdef OSLO_AERO
     use commondefinitions
     use aerosoldef !, only: nmodes
-#endif 
+#endif
 
     implicit none
 
@@ -1783,7 +1779,7 @@ contains
     real(r8) :: cld_macmic_ztodt               ! modified timestep
 #ifdef OSLO_AERO
     integer kcomp                              ! mode number (1-14)
-#endif                                    
+#endif
 
     ! physics buffer fields to compute tendencies for stratiform package
     integer itim_old, ifld
@@ -1889,7 +1885,7 @@ contains
    real(r8) :: v3insol(pcols,pver,nmodes)! Modal mass fraction of BC and dust
    real(r8) :: v3oc(pcols,pver,nmodes)   ! Modal mass fraction of OC (POM)
    real(r8) :: v3ss(pcols,pver,nmodes)   ! Modal mass fraction of sea-salt
-   real(r8) :: frh(pcols,pver,nmodes)    ! Modal humidity growth factor 
+   real(r8) :: frh(pcols,pver,nmodes)    ! Modal humidity growth factor
 #endif ! aerocom
     !-----------------------------------------------------------------------
 
@@ -2080,24 +2076,13 @@ contains
     ! from the stratiform interface has access to the same aerosols as the radiation
     ! code.
     call sslt_rebin_adv(pbuf,  state)
-    
-#ifdef DIRIND
-!   do i=1,ncol
-!      precc (i) = prec_zmc(i) + prec_cmf(i)
-!      if(precc(i).lt.0.) precc(i)=0.
-!   end do
-#ifdef AEROCOM
-!   do kcomp=1,14
-!   do k=1,pver
-!      do i=1,ncol
-        rnew3d(:,:,:)  =0.0_r8
-        logsig3d(:,:,:)=0.0_r8
-!      enddo
-!   enddo
-!   enddo
-#endif ! aerocom
-#endif ! dirind
 
+#ifdef OSLO_AERO
+#ifdef AEROCOM
+    rnew3d(:,:,:)  =0.0_r8
+    logsig3d(:,:,:)=0.0_r8
+#endif ! AEROCOM
+#endif ! OSLO_AERO
 
     !===================================================
     ! Calculate tendencies from CARMA bin microphysics.
@@ -2335,9 +2320,9 @@ contains
        call aero_model_wetdep( state, ztodt, dlf, cam_out, ptend, pbuf)
        call physics_update(state, ptend, ztodt, tend)
 
-#ifdef DIRIND
+#ifdef OSLO_AERO
 #ifdef AEROCOM
-!  Estimating hygroscopic growth by use of linear interpolation w.r.t. mass 
+!  Estimating hygroscopic growth by use of linear interpolation w.r.t. mass
 !  fractions of each internally mixed component for each mode (kcomp).
 !
    call intfrh(lchnk, ncol, v3so4, v3insol, v3oc, v3ss, relhum, frh)
@@ -2380,58 +2365,10 @@ contains
         logsig11(i,k)= logsig3d(i,k,11)
         logsig13(i,k)= logsig3d(i,k,13)
         logsig14(i,k)= logsig3d(i,k,14)
-!test-output++
-!        logsig1(i,k)  = frh(i,k,1)
-!        logsig2(i,k)  = frh(i,k,2)
-!        logsig4(i,k)  = frh(i,k,4)
-!        logsig5(i,k)  = frh(i,k,5)
-!        logsig6(i,k)  = frh(i,k,6)
-!        logsig7(i,k)  = frh(i,k,7)
-!        logsig8(i,k)  = frh(i,k,8)
-!        logsig9(i,k)  = frh(i,k,9)
-!        logsig10(i,k) = frh(i,k,10)
-!test-output--
       end do
    end do
-! kommenterer ut disse foreløpig:
-!   call outfld('RNEWD1  ',rnewdry1,pcols,lchnk)
-!   call outfld('RNEWD2  ',rnewdry2,pcols,lchnk)
-!   call outfld('RNEWD4  ',rnewdry4,pcols,lchnk)
-!   call outfld('RNEWD5  ',rnewdry5,pcols,lchnk)
-!   call outfld('RNEWD6  ',rnewdry6,pcols,lchnk)
-!   call outfld('RNEWD7  ',rnewdry7,pcols,lchnk)
-!   call outfld('RNEWD8  ',rnewdry8,pcols,lchnk)
-!   call outfld('RNEWD9  ',rnewdry9,pcols,lchnk)
-!   call outfld('RNEWD10 ',rnewdry10,pcols,lchnk)
-!!   call outfld('RNEWD11 ',rnewdry11,pcols,lchnk)  ! always = 0.0118
-!!   call outfld('RNEWD13 ',rnewdry13,pcols,lchnk)  ! always = 0.04
-!!   call outfld('RNEWD14 ',rnewdry14,pcols,lchnk)  ! always = 0.04
-!   call outfld('RNEW1   ',rnew1,pcols,lchnk)
-!   call outfld('RNEW2   ',rnew2,pcols,lchnk)
-!   call outfld('RNEW4   ',rnew4,pcols,lchnk)
-!   call outfld('RNEW5   ',rnew5,pcols,lchnk)
-!   call outfld('RNEW6   ',rnew6,pcols,lchnk)
-!   call outfld('RNEW7   ',rnew7,pcols,lchnk)
-!   call outfld('RNEW8   ',rnew8,pcols,lchnk)
-!   call outfld('RNEW9   ',rnew9,pcols,lchnk)
-!   call outfld('RNEW10  ',rnew10,pcols,lchnk)
-!   call outfld('RNEW11  ',rnew11,pcols,lchnk)
-!   call outfld('RNEW13  ',rnew13,pcols,lchnk)
-!   call outfld('RNEW14  ',rnew14,pcols,lchnk)
-!   call outfld('LOGSIG1 ',logsig1,pcols,lchnk)
-!   call outfld('LOGSIG2 ',logsig2,pcols,lchnk)
-!   call outfld('LOGSIG4 ',logsig4,pcols,lchnk)
-!   call outfld('LOGSIG5 ',logsig5,pcols,lchnk)
-!   call outfld('LOGSIG6 ',logsig6,pcols,lchnk)
-!   call outfld('LOGSIG7 ',logsig7,pcols,lchnk)
-!   call outfld('LOGSIG8 ',logsig8,pcols,lchnk)
-!   call outfld('LOGSIG9 ',logsig9,pcols,lchnk)
-!   call outfld('LOGSIG10',logsig10,pcols,lchnk)
-!!   call outfld('LOGSIG11',logsig11,pcols,lchnk)  ! always = 0.2553
-!!   call outfld('LOGSIG13',logsig13,pcols,lchnk)  ! always = 0.2553
-!!   call outfld('LOGSIG14',logsig14,pcols,lchnk)  ! always = 0.2553
-#endif ! aerocom
-#endif ! dirind
+#endif ! AEROCOM
+#endif ! OSLO_AERO
 
        if (carma_do_wetdep) then
           ! CARMA wet deposition

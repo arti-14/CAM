@@ -556,7 +556,7 @@ contains
         ! Restore pre-"physics_dme_adjust" tracers
         state%q(:ncol,:pver,:pcnst) = tmp_trac(:ncol,:pver,:pcnst)
         state%pdel(:ncol,:pver)     = tmp_pdel(:ncol,:pver)
-        state%ps(:ncol)             = tmp_ps(:ncol)    
+        state%ps(:ncol)             = tmp_ps(:ncol)
       end if
 
       if (dycore_is('LR')) then
@@ -578,7 +578,7 @@ contains
       dtcore(:ncol,k) = state%t(:ncol,k)
     end do
 
-    call diag_phys_tend_writeout (state, pbuf,  tend, ztodt,                  &
+    call diag_phys_tend_writeout(state, pbuf,  tend, ztodt,                  &
          tmp_q, tmp_cldliq, tmp_cldice, qini, cldliqini, cldiceini)
 
     call diag_surf(cam_in, cam_out, state, pbuf)

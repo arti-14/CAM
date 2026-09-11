@@ -40,6 +40,7 @@ def buildcpp(case):
     compiler = case.get_value("COMPILER") # for chem preprocessor
     nthrds_atm = case.get_value("NTHRDS_ATM")
     cam_config_opts = case.get_value("CAM_CONFIG_OPTS")
+    cam_aerocom = case.get_value("CAM_AEROCOM")
 
     # level information for CAM is part of the atm grid name - and must be stripped out
     nlev = ''
@@ -98,6 +99,10 @@ def buildcpp(case):
 
     if "-cosp" in config_opts:
         config_opts += ["-cosp_libdir", os.path.join(exeroot, "atm", "obj", "cosp")]
+
+    print(f"cam_aerocom is {cam_aerocom}")
+    if cam_aerocom:
+        config_opts += [" -aerocom"]
 
     camconf = os.path.join(caseroot, "Buildconf", "camconf")
     if not os.path.isdir(camconf):

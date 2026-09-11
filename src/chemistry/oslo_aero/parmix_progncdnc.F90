@@ -24,7 +24,7 @@ module parmix_progncdnc
    !will add to any coating
    real(r8), parameter     :: solubleMassFractionCoatingLimit=0.50_r8
 
-   real(r8), parameter :: aThird       = 1.0_r8/3.0_r8 
+   real(r8), parameter :: aThird       = 1.0_r8/3.0_r8
    real(r8), parameter :: ln10         = log(10.0_r8)
 
 contains
@@ -50,7 +50,7 @@ contains
                   ,numberConcentration &      !O [#/m3] number concentration
                   ,volumeConcentration &      !O [m3/m3] volume concentration
                   ,hygroscopicity    &        !O [mol/mol]
-                  ,lnsigma           &        !O [-] log sigma 
+                  ,lnsigma           &        !O [-] log sigma
                   ,hasAerosol        &        !I [t/f] do we have this type of aerosol here?
 !++ MH_2015/04/10
 		  ,volumeCore        &
@@ -60,12 +60,12 @@ contains
 
       implicit none
 
-      !input 
+      !input
       integer, intent(in)   :: ncol                  !Number of columns used in chunk
       real(r8), intent(in)  :: mmr(pcols,pver,pcnst)
       real(r8), intent(in)  :: rho_air(pcols,pver)
 
-      !output 
+      !output
       logical, intent(out)  :: hasAerosol(pcols, pver, nmodes)
       real(r8), intent(out) :: f_acm(pcols,pver, nbmodes)
       real(r8), intent(out) :: f_bcm(pcols,pver, nbmodes)
@@ -88,13 +88,13 @@ contains
       real(r8), intent(out) :: volumeCoat(pcols,pver,nmodes)
 !-- MH_2015/04/10
 
-      real(r8)              :: f_aitbc(pcols,pver) ! [-] bc fraction in the coated bc-oc mode 
+      real(r8)              :: f_aitbc(pcols,pver) ! [-] bc fraction in the coated bc-oc mode
       real(r8)              :: f_nbc(pcols,pver)   ! [-] mass fraction of bc in uncoated bc/oc mode
-      real(r8)              :: f_soana(pcols,pver) ! [-] 
+      real(r8)              :: f_soana(pcols,pver) ! [-]
 
       !Get mass, number concentration and the total add-ons (previous convaer)
       call calculateBulkProperties(               &
-                             ncol                 &  !I 
+                             ncol                 &  !I
                            , mmr                  &  !I
                            , rho_air              &  !I
                            , numberConcentration  &  !O
@@ -103,12 +103,12 @@ contains
                            , f_bc                 &  !O
                            , f_aq                 &  !O
                            , f_so4_cond           &  !O
-                           , f_soa                &  !O 
+                           , f_soa                &  !O
                            , f_aitbc              &  !O
                            , f_nbc                &  !O
                            , f_soana              &  !O
                            )
-   
+
       !Find the points where we have aerosol (number concentration)
       call getAerosolMask(ncol, numberConcentration, hasAerosol)
 
@@ -139,7 +139,7 @@ contains
                                     ,f_bcm               &
                                     ,f_aqm               &
                                     ,hasAerosol          &
-                                    ,hygroscopicity      & 
+                                    ,hygroscopicity      &
                                     ,volumeConcentration &
 !++ MH_2015/04/10
 				    ,volumeCore          &
@@ -160,7 +160,7 @@ contains
                                     ,f_aitbc             & !I [frc] bc fraction in int mix bc/oc mode
                                        ,lnSigma             &
                                        )
-									   
+
    end subroutine parmix_progncdnc_sub
 
    !******************************************************************
@@ -171,7 +171,7 @@ contains
                ,rho_air                & !I [kg/m3] air density
                ,numberConcentration    & !O [#/m3] aerosol number concentration
                ,CProcessModes          & !O [kg/m3] total added material
-               ,f_c                    & !O [-] fraction of aerosol which is carbon 
+               ,f_c                    & !O [-] fraction of aerosol which is carbon
                ,f_bc                   & !O [-] fraction of carbon which is bc
                ,f_aq                   & !O [-] fraction of sulfate which is aq.
                ,f_so4_cond             & !O [-] fraction of non-aq so4 which is condensate
@@ -193,7 +193,7 @@ contains
 		real(r8), intent(in) :: qm(pcols,pver,pcnst)            ! [kg/kg] mmr for transported tracers
 
       real(r8), intent(out) :: numberConcentration(pcols,pver,0:nmodes)     ! [#/m3]
-      
+
       real(r8), intent(out) :: f_c(pcols,pver)        ![-] mass fraction of process mode being c
       real(r8), intent(out) :: f_bc(pcols,pver)       ![-] mass fraction of c being bc
       real(r8), intent(out) :: f_aq(pcols,pver)       ![-] mass fraction of s being aq phase
@@ -213,7 +213,7 @@ contains
 
       do k=1,pver
 
-         !Total coagulated bc and oc and SO4 (condensate, wet phase and coagulated) (kg/kg) 
+         !Total coagulated bc and oc and SO4 (condensate, wet phase and coagulated) (kg/kg)
          !internally mixed with background modes
          totalProcessModes(:ncol,k)  = qm(:ncol,k,l_bc_ac) + qm(:ncol,k,l_om_ac) &
                +  qm(:ncol,k,l_so4_a1) + qm(:ncol,k,l_so4_a2) + qm(:ncol,k,l_so4_ac) + qm(:ncol,k,l_soa_a1)
@@ -293,8 +293,6 @@ contains
       real(r8)                     :: total
       real(r8)                     :: fraction(pcols,pver,pcnst)      !ak: oversized, but only for test use
       !--test
-#undef EXTRATESTS
-
 
       call modalapp2d_sub(ncol         &
                 ,Nnatk(1,1,1)          &  !I [#/m3]  Total number concentration (skip mode 0)
@@ -308,98 +306,9 @@ contains
                 ,f_acm                 &  !O [frc] as f_c, for each mode
                 ,f_bcm                 &  !O [frc] as f_bc, for each mode
                 ,f_aqm                 &  !O [frc] as f_aq, for each mode
-                ,f_so4_condm           &  !O [frc] 
+                ,f_so4_condm           &  !O [frc]
                 ,f_soam                &
                 )
-
-#ifdef EXTRATESTS
-      !++testing
-      fraction(:,:,:)=0.0_r8
-      do m=1,nbmodes
-         do l = 1, getNumberOfTracersInMode(m)
-            lptr = getTracerIndex(m,l,.false.)
-            do k=1,pver
-               do i=1,ncol
-                  fraction(i,k,lptr) = fraction(i,k,lptr) &
-                           + getConstituentFraction(CProcessModes(i,k), f_c(i,k), f_bc(i,k), f_aq(i,k), f_so4_cond(i,k), f_soa(i,k) &
-                           ,Cam(i,k,m), f_acm(i,k,m), f_bcm(i,k,m), f_aqm(i,k,m), f_so4_condm(i,k,m),f_soam(i,k,m), lptr  )
-               end do
-             end do
-         enddo
-      enddo
-
-         !testing that the mass fractions summed over all modes and species = 1 (or 0 if not present).
-         do m1=1,pcnst
-            do k=1, pver
-               do i=1,ncol
-                  !Check if "fraction" differs from one (accept 0.01 error), only check for concentrations > 1.e-30 kg/m3
-                  if((abs(fraction(i,k,m1)-1.0_r8) .gt. 1.e-2) .and. (fraction(i,k,m1).gt.0.0_r8) .and. (CProcessModes(i,k) .gt. 1.e-30_r8) )then
-                     if( ( m1 .eq. l_so4_a1 .and. (1.0_r8-f_c(i,k))*(1.0_r8-f_aq(i,k))*f_so4_cond(i,k) .gt. 1.0e-4_r8).or. &
-                         ( m1 .eq. l_so4_a2 .and. (1.0_r8-f_c(i,k))*f_aq(i,k) .gt. 1.0e-4_r8).or. &
-                         ( m1 .eq. l_so4_ac .and. (1.0_r8-f_c(i,k))*(1.0_r8-f_aq(i,k))*(1.0_r8-f_so4_cond(i,k)) .gt. 1.0e-4_r8).or. &
-                         ( m1 .eq. l_bc_ac .and.  f_c(i,k)*f_bc(i,k) .gt. 1.0e-4_r8).or. &
-                         ( m1 .eq. l_om_ac .and.  f_c(i,k)*(1.0_r8-f_bc(i,k))*(1.0_r8 - f_soa(i,k)) .gt. 1.0e-4_r8) .or. & 
-                         ( m1 .eq. l_soa_a1 .and. f_c(i,k)*(1.0_r8-f_bc(i,k))*f_soa(i,k) .gt. 1.0e-4_r8) &
-                         )then
-
-               print*,"  "
-               print*,"fraction error ", m1, fraction(i,k,m1), cnst_name(m1)
-               print*, "Cprocessmodes", CProcessModes(i,k), f_c(i,k), f_bc(i,k), f_aq(i,k), f_so4_cond(i,k), f_soa(i,k)
-               do l=1,nbmodes
-                  print*, "mode, cam", l, cam(i,k,l),nnatk(i,k,l)
-               enddo
-               print*,"ca, sum(cam)", CProcessModes(i,k), sum(cam(i,k,:))
-               print*,"sulfate fraction", (1.0_r8 - f_c(i,k))
-               print*,"carbon fraction", f_c(i,k)
-               print*,"non aq sulf fraction", (1.0_r8 - f_aq(i,k))*(1.0_r8 - f_c(i,k))
-               !There is something wrong with tracer lptr
-               do m=1,nmodes
-                  do l =1,getNumberOfTracersInMode(m)
-                     lptr = getTracerIndex(m,l,.false.)
-                     if(lptr .eq. m1)then !This is the tracer with problems
-                        print*, "lptr, fraction ", m,l,lptr, &
-                            getConstituentFraction(CProcessModes(i,k), f_c(i,k), f_bc(i,k), f_aq(i,k), f_so4_cond(i,k), f_soa(i,k) &
-                             ,Cam(i,k,m), f_acm(i,k,m), f_bcm(i,k,m), f_aqm(i,k,m), f_so4_condm(i,k,m) , f_soam(i,k,m), lptr,.TRUE.  ) &
-                            , NNatk(i,k,m),cam(i,k,m),numberFractionAvailableAqChem(m)
-
-                     endif
-                  enddo
-               enddo
-               do m=1,nbmodes
-                  print*,"sulfate / c, aq ", m, (1.0_r8-f_acm(i,k,m)),  f_acm(i,k,m)& 
-                        ,f_aqm(i,k,m), f_so4_condm(i,k,m), f_so4_condm(i,k,m), f_soam(i,k,m)
-               enddo
-
-               stop !stop on error
-               endif !if tracer has error
-            endif    !if budget is wrong
-               enddo      
-            enddo 
-         enddo
-
-
-         !Check total carbon
-         do k=1,pver
-            do i=1,ncol
-               total=0.0_r8
-               do kcomp=1,nbmodes
-                  total = total + cam(i,k,kcomp)*f_acm(i,k,kcomp)
-               enddo
-               if( ABS(total - CProcessModes(i,k)*f_c(i,k)) .gt. 1.e-2_r8*CProcessModes(i,k) )then
-                  if(abs(total) > 1.e-25)then
-                     print*,"CProcessModes", CProcessModes(i,k), total, abs(total - CProcessModes(i,k)*f_c(i,k))
-                     do kcomp=1,nbmodes
-                        print*,"fcm,cam,fc,ctot", f_acm(i,k,kcomp), cam(i,k,kcomp), f_c(i,k), CProcessModes(i,k)
-                     enddo
-                     stop
-                  endif
-               endif
-             end do
-          end do
-
-   !--testing
-#endif
-      !EXTRATESTS
 
    end subroutine partitionMass
 
@@ -445,8 +354,8 @@ contains
 !-- MH_2015/04/10
                                        )
 
-      !All theory in this subroutine is from 
-      !Abdul-Razzak and S. Ghan: 
+      !All theory in this subroutine is from
+      !Abdul-Razzak and S. Ghan:
       !A parameterization of aerosol activation 2. Multiple aerosol types, JGR, vol 105, noD5, pp 6837
       !http://onlinelibrary.wiley.com/doi/10.1029/1999JD901161/abstract
       implicit none
@@ -507,7 +416,7 @@ contains
 
          !Loop over tracers in mode
          do l=1,getNumberOfBackgroundTracersInMode(kcomp)
-      
+
             tracerIndex = getTracerIndex(kcomp,l,.false.) !get index in physcis space
 
             do k=1,pver
@@ -522,7 +431,7 @@ contains
                                         , hygroscopicityAvg             &
                                         , hygroscopicityCoat            &
                                         , tracerIndex                   &
-                                         ) 
+                                         )
          end do !background tracers in mode (l)
 
          !The background modes can have tracer mass added to them
@@ -530,7 +439,7 @@ contains
 
             !added aquous sulfate
             if(isTracerInMode(kcomp,l_so4_a2))then
-            
+
                do k=1,pver
                   massConcentrationTracerInMode(:ncol,k) = Cam(:ncol,k,kcomp)*(1.0_r8 - f_acm(:ncol,k,kcomp))*f_aqm(:ncol,k,kcomp)
                end do
@@ -543,11 +452,11 @@ contains
                                            , hygroscopicityAvg             &
                                            , hygroscopicityCoat            &
                                            , l_so4_a2                      &
-                                            ) 
+                                            )
             endif
 
             !added condensate/coagulate
-            !All modes which have coagulate have also condensate, so it is 
+            !All modes which have coagulate have also condensate, so it is
             !ok to check for condensate and add the combined mass..
             if(isTracerInMode(kcomp,l_so4_a1))then
 
@@ -563,7 +472,7 @@ contains
                                            , hygroscopicityAvg             &
                                            , hygroscopicityCoat            &
                                            , l_so4_a1                      &
-                                            ) 
+                                            )
             endif
             !Added bc
             if(isTracerInMode(kcomp,l_bc_ac))then
@@ -580,7 +489,7 @@ contains
                                            , hygroscopicityAvg             &
                                            , hygroscopicityCoat            &
                                            , l_bc_ac                       &
-                                            ) 
+                                            )
             endif
 
             !Added oc (both POM and SOA), then both have the same
@@ -601,7 +510,7 @@ contains
                                            , hygroscopicityAvg             &
                                            , hygroscopicityCoat            &
                                            , l_om_ac                       &
-                                            ) 
+                                            )
                endif
          end if
 
@@ -615,13 +524,13 @@ contains
 
             where (hasAerosol(:ncol,k,kcomp))
                where(VolumeCoat(:ncol,k,kcomp) .gt. 1.e-30_r8)
-                  !If there is enough soluble material, a coating will be formed: In that case, the 
+                  !If there is enough soluble material, a coating will be formed: In that case, the
                   !volume of the aerosol in question is only the volume of the coating!
                   hygroscopicityCoat(:ncol,k) = molecularWeightWater*hygroscopicityCoat(:ncol,k) &
                                                 & /( density_water * volumeCoat(:ncol,k,kcomp)) !Note use of volume Coating here
                elsewhere
                   hygroscopicityCoat(:ncol,k) = 1.e-30_r8
-               endwhere 
+               endwhere
                !mode total volume:
                volumeConcentration(:ncol,k,kcomp) = volumeCore(:ncol,k,kcomp) + volumeCoat(:ncol,k,kcomp)
 
@@ -630,15 +539,15 @@ contains
                                              & /(density_water * volumeConcentration(:ncol,k,kcomp))
 
 
-               !Average size of insoluble core (average radius) 
-               averageRadiusCore(:ncol,k) = 0.5_r8*( (volumeCore(:ncol,k,kcomp)) / numberConcentration(:ncol,k,kcomp) * (6.0_r8/pi))**athird 
-    
+               !Average size of insoluble core (average radius)
+               averageRadiusCore(:ncol,k) = 0.5_r8*( (volumeCore(:ncol,k,kcomp)) / numberConcentration(:ncol,k,kcomp) * (6.0_r8/pi))**athird
+
                !Average size of total aerosol (average radius)
                averageRadiusTotal(:ncol,k) = 0.5_r8*((volumeConcentration(:ncol,k,kcomp)) / numberConcentration(:ncol,k,kcomp)*(6.0_r8/pi))**athird
 
                !do i=1,ncol
                !   if(numberConcentration(i,k,kcomp) .gt. 1.e6 .and. kcomp.eq.6 )then
-               !      print*, "hygro_check",kcomp,numberConcentration(i,k,kcomp), averageRadiusTotal(i,k)*1.e6, averageRadiusCore(i,k)*1.e6 & 
+               !      print*, "hygro_check",kcomp,numberConcentration(i,k,kcomp), averageRadiusTotal(i,k)*1.e6, averageRadiusCore(i,k)*1.e6 &
                !               , hygroscopicityCoat(i,k), hygroscopicityAvg(i,k), (averageRadiusTotal(i,k)-averageRadiusCore(i,k))*1.e9
                !   endif
                !end do
@@ -653,7 +562,7 @@ contains
                hygroscopicity(:ncol,k,kcomp) = 1.e-10_r8
             end where
 
-         end do !levels 
+         end do !levels
 
       end do !kcomp /modes
 
@@ -669,7 +578,7 @@ contains
                                       , hygroscopicityCoat            & ![mol_{aerosol}/mol_{tracer} hygroscopicity coating
                                       , tracerIndex                   & ![idx] which tracer are we talking about (physics space)
                                       )
-   
+
       implicit none
 
       integer, intent(in)     :: ncol
@@ -679,8 +588,8 @@ contains
 
       real(r8), intent(inout) :: volumeCore(pcols, pver)                  !O [m3/m3] volume of insoluble core
       real(r8), intent(inout) :: volumeCoat(pcols, pver)                  !O [m3/m3] volume of total aerosol
-      real(r8), intent(inout) :: hygroscopicityAvg(pcols, pver)           !O [-] average hygroscopicity 
-      real(r8), intent(inout) :: hygroscopicityCoat(pcols, pver)          !O [-] average hygroscopicity 
+      real(r8), intent(inout) :: hygroscopicityAvg(pcols, pver)           !O [-] average hygroscopicity
+      real(r8), intent(inout) :: hygroscopicityCoat(pcols, pver)          !O [-] average hygroscopicity
 
       real(r8)                :: massFractionInCoating
 
@@ -708,7 +617,7 @@ contains
             !So molecular weight is duplicated, and the molecular weight of the TYPE is used here!
             hygroscopicityAvg(:ncol,k) = hygroscopicityAvg(:ncol,k) +  &
                massConcentrationTracerInMode(:ncol,k)*numberOfIons(tracerIndex)*osmoticCoefficient(tracerIndex) &
-            *solubleMassFraction(tracerIndex)/aerosol_type_molecular_weight(aerosolType(tracerIndex)) 
+            *solubleMassFraction(tracerIndex)/aerosol_type_molecular_weight(aerosolType(tracerIndex))
 
             !Contribution to hygroscopicity of coating (only if goes to coating)
             !sum up numerator in eqn 4 in Abdul-Razzak et al (average hygrocopicity)
@@ -724,7 +633,7 @@ contains
             hygroscopicityAvg(:ncol,k) = 1.0e-10_r8
             hygroscopicityCoat(:ncol,k)= 1.0e-10_r8
          end where
-   
+
       end do
 
    end subroutine addModeHygroscopicity
@@ -743,7 +652,7 @@ contains
                                        ,f_aitbc           &
                                        ,lnSigma           &
                                        )
-                                                                  
+
       implicit none
 
       !input
@@ -761,7 +670,7 @@ contains
       real(r8), intent(inout) :: numberConcentration(pcols,pver,0:nmodes) ![#/m3] number concentration
       real(r8), intent(out)   :: lnsigma(pcols,pver,nmodes)    ![-] log (base e) of std. dev
 
-      
+
       !work arrays
       real(r8)                :: nconccm3(pcols,pver)
       real(r8)                :: camUg(pcols,pver)
@@ -775,12 +684,12 @@ contains
       integer                               :: kcomp
       integer                               :: i
       integer                               :: k
- 
+
 
       !total mass not allocated to any mode
       !this is non-zero if the look-up table can not cope with all the add-on mass
       !cxstot(:,:) = 0.0_r8
-  
+
       !Remove this later!
       do i=1,ncol
          ind(i)=i
@@ -796,7 +705,7 @@ contains
         enddo
       enddo
 
- do iloop=1,1   !  loop over i>1 for testing CPU use in intlog*  
+ do iloop=1,1   !  loop over i>1 for testing CPU use in intlog*
 
       !Go through all "background" size-modes (kcomp=1-10)
       do kcomp=1,nbmodes
@@ -812,14 +721,14 @@ contains
             do k=1,pver
                call intlog1to3_sub(                            &
                                    ncol                        &                 !I number of points
-                                 , ind                         &                 !I [idx] mappoing of points to use 
+                                 , ind                         &                 !I [idx] mappoing of points to use
                                  , kcomp                       &                 !I [idx] mode index
                                  , camUg(:,k)                  &                 !I [ug/m3] mass concentration
                                  , nConccm3(:,k)               &     !I [#/cm3] number concentration
                                  , f_ocm(:,k,kcomp)            &                 !I [frc] mass fraction which is SOA cond. or OC coag.
                                  , cxs(:,k,kcomp)              &                 !O [ug/m3] mass which did not fit the table
                                  , log10sig(:,k)               &                 !O [-]sigma, is later thrown away begause of volume balance
-                                 , radius_tmp(:,k)             &                 !O [m] Number median radius                  
+                                 , radius_tmp(:,k)             &                 !O [m] Number median radius
                               )
 
             end do  !loop on levels
@@ -837,7 +746,7 @@ contains
                               , f_aqm(:,k,kcomp)               &                 !I [frc] fraction of sulfate which is aquous
                               , cxs(:,k,kcomp)                 &                 !O [ug/m3] mass which did not fit the table
                               , log10sig(:,k)                  &                 !O [-]sigma, is later thrown away begause of volume balance
-                              , radius_tmp(:,k)                &                 !O [m] Number median radius 
+                              , radius_tmp(:,k)                &                 !O [m] Number median radius
                              )
             end do
 
@@ -851,11 +760,11 @@ contains
                                   , camUg(:,k)                 &                 !I [ug/m3] mass concentration
                                   , nConccm3(:,k)              &    !I [#/cm3] number concentration
                                   , f_acm(:,k,kcomp)           &                 !I [frc] fraction of aerosol which is carbon
-                                  , f_bcm(:,k,kcomp)           &                 !I [frc] fraction of carbon which is bc  
-                                  , f_aqm(:,k,kcomp)           &                 !I [frc] fraction of sulfate which is aquous 
+                                  , f_bcm(:,k,kcomp)           &                 !I [frc] fraction of carbon which is bc
+                                  , f_aqm(:,k,kcomp)           &                 !I [frc] fraction of sulfate which is aquous
                                   , cxs(:,k,kcomp)             &                 !O [ug/m3] mass which did not fit the table (not given to any mode)
                                   , log10sig(:,k)              &                 !O logarithm (base 10) sigma, is later thrown away begause of volume balance
-                                  , radius_tmp(:,k)            &                 !O [m] Number median radius 
+                                  , radius_tmp(:,k)            &                 !O [m] Number median radius
                                 )
            end do ! k
 
@@ -866,9 +775,9 @@ contains
 
          !The whole point of the interpolation routines is to get the new sigma ==> so trust the sigma
 
-         !This means that in order to conserve the volume (which is known), we have to throw away 
+         !This means that in order to conserve the volume (which is known), we have to throw away
          !the number concentration. Should create a diagnostic or a warning if number concenration is very different
-         !from the original number concentration since in principal, the number concentration is 
+         !from the original number concentration since in principal, the number concentration is
          !also conserved!
          do k=1,pver
             !Don't change number concentration unless "hasAerosol" is true
@@ -880,14 +789,14 @@ contains
                                              /(2.0_r8*radius_tmp(:ncol,k))**3  &
                                              *DEXP(-4.5_r8*lnsigma(:ncol,k,kcomp)*lnsigma(:ncol,k,kcomp))
 
-               !==> Now we have a set of n, vol, sigma which is consistent and gives back whatever the 
-               !lookup tables told us! If the look up tables were conserving volume we didn't have to do 
+               !==> Now we have a set of n, vol, sigma which is consistent and gives back whatever the
+               !lookup tables told us! If the look up tables were conserving volume we didn't have to do
                !the step just above!!
 
                !Sum up all mass which was not added to any mode (mass exceeding the max limit in the look-up tables)
                !cxstot(:ncol,k) = cxstot(:ncol,k) + cxs(:ncol,k,kcomp)*1.e-9_r8 ! ug/m3 ==> kg/m3
-     
-            end where 
+
+            end where
          end do
 
       end do !kcomp
@@ -900,20 +809,20 @@ contains
       end do
 
       !AK (fxm): "unactivated" code below...
-      !Excessive internally mixed process mass added to the background modes (exceeding the max limit in the look-up tables) 
+      !Excessive internally mixed process mass added to the background modes (exceeding the max limit in the look-up tables)
                 !is instead added to / lumped with the externally mixed non-background modes (kcomp=11,12,14)
       !numberConcentration(:,:,MODE_IDX_SO4_NUC) = numberConcentration(:,:,MODE_IDX_SO4_NUC) &
-      !                                    + (volumeToNumber(MODE_IDX_SO4_NUC) &          !excess sulfate mass is moved to this mode  
+      !                                    + (volumeToNumber(MODE_IDX_SO4_NUC) &          !excess sulfate mass is moved to this mode
       !                                     *RESHAPE(cxstot,(/pcols,pver/)) &
       !                                     *(1.0_r8-f_c(:,:))/rhopart(l_so4_n))
-      
+
       !numberConcentration(:,:,MODE_IDX_BC_NUC) = numberConcentration(:,:,MODE_IDX_BC_NUC) &
-      !                                    + (volumeToNumber(MODE_IDX_BC_NUC)  &          !excess carbon mass is moved to this mode  
+      !                                    + (volumeToNumber(MODE_IDX_BC_NUC)  &          !excess carbon mass is moved to this mode
       !                                    * RESHAPE(cxstot,(/pcols,pver/)) &
       !                                    * f_c(:,:)/rhopart(l_bc_n))
-      
+
       !SKIP LUMPING OF OC-MODE TO MODE MODE_IDX_LUMPED ORGANICS SINCE THIS WILL MESS UP THE HASAEROSOL-MASK!
-      !   modedefs(i)%Nnatk(MODE_IDX_LUMPED_ORGANICS) = efact_omn &   !excess OM mass is moved to this mode (originally kcomp=13) 
+      !   modedefs(i)%Nnatk(MODE_IDX_LUMPED_ORGANICS) = efact_omn &   !excess OM mass is moved to this mode (originally kcomp=13)
       !            * (modedefs(i)%Nnatk(MODE_IDX_LUMPED_ORGANICS) + cxstot(i)*modedefs(i)%f_c*(1.0_r8-modedefs(i)%f_bc))
 
 

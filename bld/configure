@@ -110,10 +110,12 @@ OPTIONS
   Options used to determine the CAM model configuration.  These options will have an
   effect whether running CAM as part of CCSM or running in a CAM standalone mode:
 
+     -aerocom           Enable AEROCOM cpp-def for OSLO_AERO
      -[no]age_of_air_trcs Switch on [off] age of air tracers. Default: on for waccm_phys, otherwise off.
      -analytic_ic       Enables the (namelist controlled) dycore testing infrastructure
      -aquaplanet        Switch on aqua-planet mode.
      -build_chem_proc   Switch forces the build of the chemistry preprocessor (primarily for testing).
+     -camnor            Build CAM with CAM-Nor modifications
      -carma <name>      Build CAM with specified CARMA microphysics model
                         [ none | bc_strat | cirrus | cirrus_dust | dust | meteor_impact |
                           meteor_smoke | mixed_sulfate | pmc | pmc_sulfate | sea_salt | sulfate | tholin |
@@ -121,10 +123,11 @@ OPTIONS
                           test_tracers, test_tracers2].
                         Default: none.
      -chem <name>       Build CAM with specified prognostic chemistry package
-                        [ trop_mam3 | trop_mam4 | trop_mam7 | trop_mozart | trop_strat_mam4_vbs | trop_strat_mam4_vbsext | 
-                          waccm_ma | waccm_mad | waccm_mad_mam4 | waccm_ma_mam4 | 
-                          waccm_ma_sulfur | waccm_sc | waccm_sc_mam4 | waccm_tsmlt_mam4 | 
+                        [ trop_mam3 | trop_mam4 | trop_mam7 | trop_mozart | trop_strat_mam4_vbs | trop_strat_mam4_vbsext |
+                          waccm_ma | waccm_mad | waccm_mad_mam4 | waccm_ma_mam4 |
+                          waccm_ma_sulfur | waccm_sc | waccm_sc_mam4 | waccm_tsmlt_mam4 |
                           terminator | trop_mam_oslo | none ].
+                        Default: trop_mam_oslo when -camnor is specified
                         Default: trop_mam4 for cam6 and trop_mam3 for cam5.
      -[no]clubb_sgs     Switch on [off] CLUBB_SGS.  Default: on for cam6, otherwise off.
      -clubb_opts <list> Comma separated list of CLUBB options to turn on/off.  By default they are all off.
@@ -288,6 +291,7 @@ my %opts = (
             cache       => "config_cache.xml",
             );
 GetOptions(
+    "aerocom!"                  => \$opts{'aerocom'},
     "age_of_air_trcs!"          => \$opts{'age_of_air_trcs'},
     "analytic_ic"               => \$opts{'analytic_ic'},
     "aquaplanet"                => \$opts{'aquaplanet'},
@@ -299,6 +303,7 @@ GetOptions(
     "cam_exe=s"                 => \$opts{'cam_exe'},
     "cam_exedir=s"              => \$opts{'cam_exedir'},
     "camiop"                    => \$opts{'camiop'},
+    "camnor!"                   => \$opts{'camnor'},
     "cc=s"                      => \$opts{'cc'},
     "ccsm_seq"                  => \$opts{'ccsm_seq'},
     "cflags=s"                  => \$opts{'cflags'},
@@ -612,11 +617,26 @@ if (defined $opts{'phys'}) {
     $phys_pkg = lc($opts{'phys'});
 }
 
+# Special configuration for CAM-Nor options
+# Currently, each CAM-Nor selection only works with the CAM6
+#     ESCOMP/CAM physics suites
+my $camnor = 0;
+# user or compset override is only way to turn on this feature
+if (defined $opts{'camnor'}) {
+    $camnor = $opts{'camnor'};
+}
+
 # Add to the config object.
 $cfg_ref->set('phys', $phys_pkg);
+$cfg_ref->set('camnor', $camnor);
 
-if ($print>=2) { print "Physics package: $phys_pkg$eol"; }
-
+if ($print>=2) {
+  if ($camnor) {
+    print "Physics package: $phys_pkg with CAM-Nor modifications$eol";
+  } else {
+    print "Physics package: $phys_pkg$eol";
+  }
+}
 
 # Set flag to indicate a simple physics option
 my $simple_phys = 0;
@@ -632,6 +652,9 @@ my $chem_pkg = 'trop_mam4';
 # defaults based on physics package
 if ($simple_phys or $phys_pkg =~ m/^cam[34]$/ or $phys_pkg eq 'spcam_sam1mom') {
     $chem_pkg = 'none';
+}
+elsif ($camnor) {
+    $chem_pkg = 'trop_mam_oslo';
 }
 elsif ($phys_pkg eq 'cam5' or $phys_pkg eq 'spcam_m2005') {
     $chem_pkg = 'trop_mam3';
@@ -1920,7 +1943,7 @@ if ($cfg_ref->get('analytic_ic')) {
 
 #WACCM-X extended thermosphere/ionosphere model
 if ($waccmx) {
-    $cfg_cppdefs .= ' -DWACCMX_PHYS'; 
+    $cfg_cppdefs .= ' -DWACCMX_PHYS';
     if (($dyn_pkg ne 'fv') and ($ionos ne 'none'))  {
         die "ERROR:  Ionosphere is only available for FV dycore \n";
     }
@@ -1950,6 +1973,14 @@ if ($clubb_sgs == 1) {
     $cfg_cppdefs .= ' -DCLUBB_CAM';
     $cfg_cppdefs .= ' -DNO_LAPACK_ISNAN';
     $cfg_cppdefs .= " -DCLUBB_REAL_TYPE=dp";
+}
+
+# Turn on aerocom
+my $aerocom_opt = (defined $opts{'aerocom'}) ? 1 : 0;
+$cfg_ref->set('aerocom', $aerocom_opt);
+my $aerocom = $cfg_ref->get('aerocom');
+if ($aerocom eq 1) {
+    $cfg_cppdefs .= ' -DAEROCOM';
 }
 
 # UNICON
@@ -2731,6 +2762,7 @@ sub write_filepath
     my $ocn           = $cfg_ref->get('ocn');
     my $offline_drv   = $cfg_ref->get('offline_drv');
     my $inic_val      = $cfg_ref->get('analytic_ic');
+    my $camnor        = $cfg_ref->get('camnor');
 
     # Root directory
     my $camsrcdir = "$cam_root/components";
@@ -2753,17 +2785,14 @@ sub write_filepath
         print $fh "$CASEROOT/SourceMods/src.cam\n";
     }
 
-   #NorESM-specific: 
-   #Any files in "NorESM"-folder go before the original CAM-files
-   #These files MUST give back standard CAM5.3 if a standard CAM5.3 compset is chosen
-   #Un-commenting this line will give back standard CAM 5.3 (unmodified).
-   #This is used for testing.
-   #++djlo (should be switched off when pure NCAR version is desired)
-   print $fh "$camsrcdir/cam/src/NorESM\n";
-   print $fh "$camsrcdir/cam/src/NorESM/$dyn\n";
-   #--djlo
+    # CAM-Nor has precedence over everything except SourceMods
+    #   Only active in NF or NB compsets
+    if ($camnor) {
+        print $fh "$camsrcdir/cam/src/NorESM\n";
+        print $fh "$camsrcdir/cam/src/NorESM/$dyn\n";
+    }
 
-   # offline unit driver (defaults to stub)
+    # offline unit driver (defaults to stub)
     print $fh "$camsrcdir/cam/src/unit_drivers\n";
     print $fh "$camsrcdir/cam/src/unit_drivers/${offline_drv}\n";
 
@@ -2790,13 +2819,12 @@ sub write_filepath
     if ($chem =~/_oslo/) {
          print $fh "$camsrcdir/cam/src/chemistry/oslo_aero\n";
          print $fh "$camsrcdir/cam/src/physics/cam_oslo\n";
-    }
-    else{
-	 if ($chem =~ /_mam/) {
-	    print $fh "$camsrcdir/cam/src/chemistry/modal_aero\n";
-	 } else {
-	   print $fh "$camsrcdir/cam/src/chemistry/bulk_aero\n";
-	}
+    } else {
+        if ($chem =~ /_mam/) {
+            print $fh "$camsrcdir/cam/src/chemistry/modal_aero\n";
+        } else {
+            print $fh "$camsrcdir/cam/src/chemistry/bulk_aero\n";
+        }
     }
     print $fh "$camsrcdir/cam/src/chemistry/aerosol\n";
 

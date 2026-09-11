@@ -1,0 +1,5 @@
+mfilt=1,1,1,1,1,1
+ndens=1,1,1,1,1,1
+nhtfrq=9,9,9,9,9,9
+inithist='ENDOFRUN'
+fincl2='ATMEINT:I','qv_pre_PBL:I','ql_pre_PBL:I','qi_pre_PBL:I','uten_PBL:I','vten_PBL:I','qvten_PBL:I','qlten_PBL','qiten_PBL','BC_AcondTend:I','BC_NcondTend:I','BC_AIcondTend:I','BC_AXcondTend:I','BC_NIcondTend:I','OM_AIcondTend:I','OM_NIcondTend:I','SO4_A1condTend:I','SOA_A1condTend:I','SO4_NAcondTend:I','SOA_NAcondTend:I','FSUS_DRF:I'

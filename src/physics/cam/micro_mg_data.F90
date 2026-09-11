@@ -500,6 +500,9 @@ subroutine add_field_2D(self, unpacked_ptr, packed_ptr, fillvalue, &
   real(r8), intent(in), optional :: fillvalue
   integer, intent(in), optional :: accum_method
 
+  unpacked_ptr(:,:) = 0._r8
+  packed_ptr(:,:) = 0._r8
+
   call self%field_procs%push_back(MGFieldPostProc(unpacked_ptr, &
        packed_ptr, fillvalue, accum_method))
 

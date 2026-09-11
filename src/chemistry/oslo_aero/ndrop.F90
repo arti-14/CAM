@@ -34,7 +34,7 @@ use phys_control,   only: use_hetfrz_classnuc
 
 #ifdef OSLO_AERO
 !++oslo
-use aerosoldef 
+use aerosoldef
 use parmix_progncdnc
 use oslo_utils, only: calculateNumberMedianRadius
 !--oslo
@@ -104,7 +104,7 @@ logical :: tendencyCounted(pcnst) = .false. ! set flags true for constituents wi
 integer :: n_aerosol_tracers
 integer :: aerosolTracerList(pcnst)        !List where indexes 1...n_aerosol_tracers are the indexes in pcnst
                                            !..something like (/ l_so4_a1, l_bc_a, .../)etc
-integer :: inverseAerosolTracerList(pcnst) !List where you can back the place in aerosolTracerList if you know the 
+integer :: inverseAerosolTracerList(pcnst) !List where you can back the place in aerosolTracerList if you know the
                                            !tracer index. So in the example above inverseAerosolTracerList(l_so4_a1) = 1
 #endif
 
@@ -134,7 +134,7 @@ subroutine ndrop_init
 #ifdef OSLO_AERO
    character(len=10)                :: modeString
    character(len=20)                :: varname
-#endif 
+#endif
 
    !-------------------------------------------------------------------------------
 
@@ -182,7 +182,7 @@ subroutine ndrop_init
    do m = 1,ntot_amode
       nspec_amode(m) = getNumberOfTracersInMode(m)
    enddo
-#else 
+#else
    do m = 1, ntot_amode
       ! use only if width of size distribution is prescribed
 
@@ -203,7 +203,7 @@ subroutine ndrop_init
       voltonumbhi_amode(m) = 1._r8 / ( (pi/6._r8)*                          &
                              (dgnumhi_amode(m)**3._r8)*exp(4.5_r8*alogsig(m)**2._r8) )
    end do
-#endif 
+#endif
    ! Init the table for local indexing of mam number conc and mmr.
    ! This table uses species index 0 for the number conc.
 
@@ -346,7 +346,7 @@ subroutine ndrop_init
 
 
          end if
-            
+
       end do
    end do
 
@@ -370,7 +370,7 @@ subroutine ndrop_init
 
 #ifdef OSLO_AERO
    if(history_aerosol)then
-      do l = 1, psat 
+      do l = 1, psat
          call add_default(ccn_name(l), 1, ' ')
       enddo
    end if
@@ -384,7 +384,7 @@ subroutine ndrop_init
 
 #ifndef OSLO_AERO
 
-   ! set the add_default fields  
+   ! set the add_default fields
    if (history_amwg) then
       call add_default('CCN3', 1, ' ')
    endif
@@ -424,7 +424,7 @@ subroutine dropmixnuc( &
    !-- MH_2015/09/07
    tendnd,                                     &  ! Output
    !++ MH_2015/04/10
-   fn_in,                                      & 
+   fn_in,                                      &
    from_spcam )
    !-- MH_2015/04/10
 
@@ -459,7 +459,7 @@ subroutine dropmixnuc( &
    real(r8), intent(in) :: f_bcm(pcols,pver, nbmodes)
    real(r8), intent(in) :: f_aqm(pcols, pver, nbmodes)
    real(r8), intent(in) :: f_so4_condm(pcols, pver, nbmodes)            !Needed in "get component fraction
-   real(r8), intent(in) :: f_soam(pcols,pver,nbmodes)               
+   real(r8), intent(in) :: f_soam(pcols,pver,nbmodes)
    real(r8), intent(in) :: numberConcentration(pcols,pver,0:nmodes) ![#/m3] number concentraiton
    real(r8), intent(in) :: volumeConcentration(pcols,pver,nmodes)   ![m3/m3] volume concentration
    real(r8), intent(in) :: hygroscopicity(pcols,pver,nmodes)        ![-] hygroscopicity
@@ -577,7 +577,7 @@ subroutine dropmixnuc( &
    real(r8), allocatable :: fluxn(:)           ! number  activation fraction flux (cm/s)
    real(r8), allocatable :: fluxm(:)           ! mass    activation fraction flux (cm/s)
    real(r8)              :: flux_fullact(pver) ! 100%    activation fraction flux (cm/s)
-   !     note:  activation fraction fluxes are defined as 
+   !     note:  activation fraction fluxes are defined as
    !     fluxn = [flux of activated aero. number into cloud (#/cm2/s)]
    !           / [aero. number conc. in updraft, just below cloudbase (#/cm3)]
 
@@ -630,7 +630,6 @@ subroutine dropmixnuc( &
 #endif
    integer                              :: numberOfModes
 !-------------------------------------------------------------------------------
-#undef EXTRATESTS
 #undef MASS_BALANCE_CHECK
 
    sq2pi = sqrt(2._r8*pi)
@@ -695,10 +694,10 @@ subroutine dropmixnuc( &
       fluxn(ntot_amode),              &
       fluxm(ntot_amode)               )
 
-   ! Init pointers to mode number and specie mass mixing ratios in 
+   ! Init pointers to mode number and specie mass mixing ratios in
    ! intersitial and cloud borne phases.
-#ifdef OSLO_AERO  
-   !Need a list of all aerosol species ==> store in raer (mm) 
+#ifdef OSLO_AERO
+   !Need a list of all aerosol species ==> store in raer (mm)
    ! or qqcw for cloud-borne aerosols (?)
    do m=1,nmodes  !All aerosol modes
 
@@ -709,13 +708,6 @@ subroutine dropmixnuc( &
          mm               =  mam_idx(m,l)                          !Index in raer/qqcw
          raer(mm)%fld =>  state%q(:,:,tracerIndex)                 !NOTE: These are total fields (for example condensate)
          call pbuf_get_field(pbuf, CloudTracerIndex, qqcw(mm)%fld) !NOTE: These are total fields (for example condensate)
-#ifdef EXTRATESTS
-!         if(tracerIndex .eq. ldebug)then
-!            do k=1,pver
-!               print*,"pointer check",k,m,l,mm,tracerIndex, raer(mm)%fld(idebug,k), state%q(idebug,k,tracerIndex)
-!            end do
-!         endf
-#endif
       enddo
    enddo
    allocate(                             &
@@ -736,7 +728,7 @@ subroutine dropmixnuc( &
    end do
 #endif
 
-   called_from_spcam = (present(from_spcam)) 
+   called_from_spcam = (present(from_spcam))
 
    if (called_from_spcam) then
       rgas  => state%q
@@ -754,10 +746,10 @@ subroutine dropmixnuc( &
    end if
 
 #ifdef OSLO_AERO
-      !Improve this later by using only cloud points ? 
+      !Improve this later by using only cloud points ?
       do k = top_lev, pver
          do i=1,ncol
-            cs(i,k)  = pmid(i,k)/(rair*temp(i,k))        ! air density (kg/m3) 
+            cs(i,k)  = pmid(i,k)/(rair*temp(i,k))        ! air density (kg/m3)
          end do
       end do
 
@@ -782,7 +774,7 @@ subroutine dropmixnuc( &
 
       alert = .FALSE.
       do k=top_lev,pver
-         mm = k - top_lev + 1 
+         mm = k - top_lev + 1
          do m=1,nmodes
             if(.NOT. alert .and. &
                ANY(numberConcentration(:ncol,k,m) .lt. 0.0_r8 ))then
@@ -905,7 +897,7 @@ subroutine dropmixnuc( &
                sumFraction = 0.0_r8
                do m=1,ntot_amode
                   do lptr=1,getNumberOfTracersInMode(m)
-                     if(getTracerIndex(m,lptr,.FALSE.) .eq. l ) then  
+                     if(getTracerIndex(m,lptr,.FALSE.) .eq. l ) then
                         sumFraction = sumFraction + 1.0_r8
                      endif
                   end do ! tracers in mode
@@ -926,9 +918,9 @@ subroutine dropmixnuc( &
          mm =mam_idx(m,0)
          do k= top_lev,pver
             raercol(k,mm,nsav) = numberConcentration(i,k,m)/cs(i,k) !#/kg air
-            !In oslo model, number concentrations are diagnostics, so 
-            !Approximate number concentration in each mode by total 
-            !cloud number concentration scaled by how much is available of 
+            !In oslo model, number concentrations are diagnostics, so
+            !Approximate number concentration in each mode by total
+            !cloud number concentration scaled by how much is available of
             !each mode
             raercol_cw(k,mm,nsav) = ncldwtr(i,k)*numberConcentration(i,k,m)&
                            /max(1.e-30_r8, sum(numberConcentration(i,k,1:nmodes)))
@@ -936,7 +928,7 @@ subroutine dropmixnuc( &
 
          !These are the mass mixing ratios
          do l = 1, nspec_amode(m)
-            mm = mam_idx(m,l)      !index of tracer (all unique) 
+            mm = mam_idx(m,l)      !index of tracer (all unique)
             raercol(:,mm,nsav) = 0.0_r8
             raercol_cw(:,mm,nsav) = 0.0_r8
             !Several of the fields (raer(mm)%fld point to the same
@@ -948,56 +940,12 @@ subroutine dropmixnuc( &
                else
                   componentFraction = componentFractionOK(k,m,getTracerIndex(m,l,.false.))
                endif
-#ifdef EXTRATESTS
-            if(i .eq. iDebug .and. getTracerIndex(m,l,.false.) .eq. lDebug)then
-               !print*,"componentFraction", i,cnst_name(oslo_cnst_idx(m,l)),componentFraction
-               print*,"assigning cloud/aerosol", k,m,l,qqcw(mm)%fld(i,k), raer(mm)%fld(i,k) &
-                     ,componentFraction
-               debugSumFraction(k) = debugSumFraction(k) + componentFraction
-            endif
-            if(componentFraction > 1.0_r8)then
-               print*, "wrong component fraction", componentFraction
-               stop
-               call endrun("wrong component fraction")
-            endif
-#endif
                !Assign to the components used here i.e. distribute condensate/coagulate to modes
                raercol_cw(k,mm,nsav) = qqcw(mm)%fld(i,k)*componentFraction
                raercol(k,mm,nsav)    = raer(mm)%fld(i,k)*componentFraction
             enddo ! k (levels)
          end do   ! l (species)
       end do      ! m (modes)
-#ifdef EXTRATESTS
-     do k=top_lev,pver
-      if(i .eq. iDebug .and. (abs(debugSumFraction(k)-1.0_r8).gt.1.e-2_r8) .and. debugSumFraction(k).gt.1.e-6_r8)then
-         print*, "debugSumFraction", cnst_name(getTracerIndex(m,l,.false.)),i, k, debugSumFraction(k), abs(debugSumFraction(k)-1.0_r8)
-         componentFraction=0.0_r8
-         do m=1,nbmodes
-            componentFraction = componentFraction + cam(i,k,m)
-            print*, "MODECONC", m, cam(i,k,m), numberConcentration(i,k,m)
-         end do
-         print*, "CS, sumCAM", CProcessModes(i,k), sum(cam(i,k,1:nbmodes)), componentFraction
-         print*, "q (cond)", state%q(i,k,lDebug)*cs(i,k)!mass in q
-         print*, "q (aq) " ,state%q(i,k,l_so4_a2)*cs(i,k)
-         print*, "bulk fractions", f_so4_cond(i,k),f_c(i,k), f_bc(i,k), f_aq(i,k)
-         !print*, "other levels", debugSumFraction(:)
-         do m=1,nmodes
-            do l=1,nspec_amode(m)
-               if(getTracerIndex(m,l,.false.) == ldebug)then
-                  if(m .gt. nbmodes)then
-                     componentFraction = 1.0_r8
-                  else
-                     componentFraction = componentFractionOK(k,m,getTracerIndex(m,l,.false.))
-                  endif
-                  print*, "nmode, l,k, ", m,l,k , lDebug, componentFraction, cam(i,k,m), f_aqm(i,k,m), f_acm(i,k,m), f_so4_condm(i,k,m)
-                  print*, "fraction2 ", cam(i,k,m), cam(i,k,m)/CProcessModes(i,k)*100.0_r8, " %"
-               endif
-            enddo
-         enddo
-         call endrun("wrong debugsumfraction")
-      endif  !idebug/ldebug
-     enddo
-#endif
      !END OSLO-STUFF, BELOW IS MAM 3
 #else
    do m = 1, ntot_amode
@@ -1029,9 +977,9 @@ subroutine dropmixnuc( &
 
       ! droplet nucleation/aerosol activation
 
-      ! tau_cld_regenerate = time scale for regeneration of cloudy air 
+      ! tau_cld_regenerate = time scale for regeneration of cloudy air
       !    by (horizontal) exchange with clear air
-      tau_cld_regenerate = 3600.0_r8 * 3.0_r8 
+      tau_cld_regenerate = 3600.0_r8 * 3.0_r8
 
       if (called_from_spcam) then
       ! when this is called  in the MMF part, no cloud regeneration and decay.
@@ -1084,7 +1032,7 @@ subroutine dropmixnuc( &
          !    alternate formulation
          !    cldn_tmp = cldn(i,k) * max( 0.0_r8, (1.0_r8-dtmicro/tau_cld_regenerate) )
 
-         ! fraction is also provided. 
+         ! fraction is also provided.
          if (cldn_tmp < cldo_tmp) then
             !  droplet loss in decaying cloud
             !++ sungsup
@@ -1105,18 +1053,13 @@ subroutine dropmixnuc( &
                   dact    = raercol_cw(k,mm,nsav)*dumc
                   raercol_cw(k,mm,nsav) = raercol_cw(k,mm,nsav) + dact  ! cloud-borne aerosol
                   raercol(k,mm,nsav)    = raercol(k,mm,nsav) - dact
-#ifdef EXTRATESTS
-              if(i.eq. iDebug .and. getTracerIndex(m,l,.false.).eq.lDebug)then
-               print*,"decaying cloud", k, dact, cldn_tmp, cldo_tmp
-              endif
-#endif
                end do
             end do
          end if
 
          ! growing liquid cloud ......................................................
          !    treat the increase of cloud fraction from when cldn(i,k) > cldo(i,k)
-         !    and also regenerate part of the cloud 
+         !    and also regenerate part of the cloud
          cldo_tmp = cldn_tmp
          cldn_tmp = lcldn(i,k)
 
@@ -1242,7 +1185,7 @@ subroutine dropmixnuc( &
                   if(m .gt. nbmodes)then
                      constituentFraction = 1.0_r8
                   else
-                     constituentFraction = componentFractionOK(k,m,getTracerIndex(m,l,.false.)  ) 
+                     constituentFraction = componentFractionOK(k,m,getTracerIndex(m,l,.false.)  )
                   endif
 
                   dact    = dum*raer(mm)%fld(i,k)*constituentFraction
@@ -1251,12 +1194,6 @@ subroutine dropmixnuc( &
 #endif
                   raercol_cw(k,mm,nsav) = raercol_cw(k,mm,nsav) + dact  ! cloud-borne aerosol
                   raercol(k,mm,nsav)    = raercol(k,mm,nsav) - dact
-#ifdef EXTRATESTS
-              if(i.eq.iDebug .and. getTracerIndex(m,l,.false.).eq.lDebug)then
-               print*,"growing cloud (new/old)", k, raercol_cw(k,mm,nsav), raercol_cw(k,mm,nsav)-dact &
-                                                   ,raercol(k,mm,nsav),raercol(k,mm,nsav)+dact,dact
-              endif
-#endif
                enddo
             enddo
          endif  ! cldn_tmp-cldo_tmp > 0.01_r8
@@ -1330,7 +1267,7 @@ subroutine dropmixnuc( &
             numberOfModes = ntot_amode
 
                do m = 1, ntot_amode
-                  ! rce-comment - use kp1 here as old-cloud activation involves 
+                  ! rce-comment - use kp1 here as old-cloud activation involves
                   !   aerosol from layer below
                   call loadaer( &
                      state, pbuf, i, i, kp1,  &
@@ -1417,14 +1354,14 @@ subroutine dropmixnuc( &
                ! rce-comment 2
                !    code for k=pver was changed to use the following conceptual model
                !    in k=pver, there can be no cloud-base activation unless one considers
-               !       a scenario such as the layer being partially cloudy, 
+               !       a scenario such as the layer being partially cloudy,
                !       with clear air at bottom and cloudy air at top
-               !    assume this scenario, and that the clear/cloudy portions mix with 
+               !    assume this scenario, and that the clear/cloudy portions mix with
                !       a timescale taumix_internal = dz(i,pver)/wtke_cen(i,pver)
-               !    in the absence of other sources/sinks, qact (the activated particle 
+               !    in the absence of other sources/sinks, qact (the activated particle
                !       mixratio) attains a steady state value given by
                !          qact_ss = fcloud*fact*qtot
-               !       where fcloud is cloud fraction, fact is activation fraction, 
+               !       where fcloud is cloud fraction, fact is activation fraction,
                !       qtot=qact+qint, qint is interstitial particle mixratio
                !    the activation rate (from mixing within the layer) can now be
                !       written as
@@ -1434,8 +1371,8 @@ subroutine dropmixnuc( &
                !    also, d(qact)/dt can be negative.  in the code below
                !       it is forced to be >= 0
                !
-               ! steve -- 
-               !    you will likely want to change this.  i did not really understand 
+               ! steve --
+               !    you will likely want to change this.  i did not really understand
                !       what was previously being done in k=pver
                !    in the cam3_5_3 code, wtke(i,pver) appears to be equal to the
                !       droplet deposition velocity which is quite small
@@ -1465,11 +1402,6 @@ subroutine dropmixnuc( &
                end do
                srcn(k)      = srcn(k) + fluxntot/(cs(i,k)*dz(i,k))
                nsource(i,k) = nsource(i,k) + fluxntot/(cs(i,k)*dz(i,k))
-#ifdef EXTRATESTS
-            if(fluxntot/(cs(i,k)*dz(i,k)) > 0.0_r8 )then
-               print*,"activated/available(from below)",i,k,m,fluxntot/(cs(i,k)*dz(i,k))  
-            endif
-#endif
             endif  ! (cldn(i,k) - cldn(i,kp1) > 0.01 .or. k == pver)
 
          else  ! i.e: cldn(i,k) < 0.01_r8
@@ -1491,11 +1423,6 @@ subroutine dropmixnuc( &
 
                   do l = 1, nspec_amode(m)
                      mm = mam_idx(m,l)
-#ifdef EXTRATESTS
-                 if(i.eq.iDebug .and. getTracerIndex(m,l,.false.).eq.lDebug)then
-                  print*,"no cloud", k,  raercol(k,mm,nsav) , raercol_cw(k,mm,nsav)
-                 endif
-#endif
                      raercol(k,mm,nsav)    = raercol(k,mm,nsav) + raercol_cw(k,mm,nsav) ! cloud-borne aerosol
                      raercol_cw(k,mm,nsav) = 0._r8
                   end do
@@ -1518,7 +1445,7 @@ subroutine dropmixnuc( &
       do k = top_lev, pver-1
          ! rce-comment -- ekd(k) is eddy-diffusivity at k/k+1 interface
          !   want ekk(k) = ekd(k) * (density at k/k+1 interface)
-         !   so use pint(i,k+1) as pint is 1:pverp 
+         !   so use pint(i,k+1) as pint is 1:pverp
          !           ekk(k)=ekd(k)*2.*pint(i,k)/(rair*(temp(i,k)+temp(i,k+1)))
          !           ekk(k)=ekd(k)*2.*pint(i,k+1)/(rair*(temp(i,k)+temp(i,k+1)))
          ekk(k) = ekd(k)*csbot(k)
@@ -1534,10 +1461,10 @@ subroutine dropmixnuc( &
          !    for the layer.  for most layers, the activation loss rate
          !    (for interstitial particles) is accounted for by the loss by
          !    turb-transfer to the layer above.
-         !    k=pver is special, and the loss rate for activation within 
+         !    k=pver is special, and the loss rate for activation within
          !    the layer must be added to tinv.  if not, the time step
          !    can be too big, and explmix can produce negative values.
-         !    the negative values are reset to zero, resulting in an 
+         !    the negative values are reset to zero, resulting in an
          !    artificial source.
          if (k == pver) tinv = tinv + taumix_internal_pver_inv
 
@@ -1609,16 +1536,6 @@ subroutine dropmixnuc( &
           mact_tracer(:,lptr2) = mact_tracer(:,lptr2) + mact(:,m)*raercol(:,mm,nnew)
           mfullact_tracer(:,lptr2) = mfullact_tracer(:,lptr2) + raercol(:,mm,nnew)
 
-#ifdef EXTRATESTS
-          if(lptr.eq.lDebug .and. i.eq.iDebug)then
-             do k=pver,top_lev,-1
-               print*, "assigning to tracer space",lptr, raercol(k,mm,nnew) &
-                        , raercol_tracer(k,lptr2,nnew) &
-                        , raercol_cw(k,mm,nnew) &
-                        , raercol_cw_tracer(k,lptr2,nnew)
-             end do
-          end if
-#endif
        end do !l
     end do    !m
 
@@ -1691,7 +1608,7 @@ subroutine dropmixnuc( &
          !    of a layer, and generally higher in the clear portion.  (we have/had
          !    a method for diagnosing the the clear/cloudy mixratios.)  the activation
          !    source terms involve clear air (from below) moving into cloudy air (above).
-         !    in theory, the clear-portion mixratio should be used when calculating 
+         !    in theory, the clear-portion mixratio should be used when calculating
          !    source terms
          do m = 1, ntot_amode
             mm = mam_idx(m,0)
@@ -1762,10 +1679,10 @@ subroutine dropmixnuc( &
 
             tmpa = raercol_tracer(pver,lptr2,nsav)*mact_tracer(pver,lptr2) &
               + raercol_cw_tracer(pver,lptr2,nsav)*(mact_tracer(pver,lptr2) - taumix_internal_pver_inv)
-            
+
             source(pver) = max(0.0_r8, tmpa)
             flxconv = 0.0_r8
-   
+
             call explmix( &
                raercol_cw_tracer(:,lptr2,nnew), source, ekkp, ekkm, overlapp, &
                overlapm, raercol_cw_tracer(:,lptr2,nsav), zero, zero, pver,   &
@@ -1776,26 +1693,13 @@ subroutine dropmixnuc( &
                overlapm, raercol_tracer(:,lptr2,nsav), zero, flxconv, pver, &
                dtmix, .true., raercol_cw_tracer(:,lptr2,nsav))
 
-#ifdef EXTRATESTS
-            lptr = aerosolTracerList(lptr2)
-            if(i.eq.iDebug .and. lptr.eq.lDebug)then
-               print*, "bugeds for ",trim(cnst_name(lptr)), n, nsubmix
-               do k=pver,1,-1
-                  print*, "source (aerosol/cloud) ",k, raercol_cw_tracer(k,lptr2,nnew),raercol_cw_tracer(k,lptr2,nsav) &
-                        , raercol_tracer(k,lptr2,nnew),raercol_tracer(k,lptr2,nsav),source(k)
-               end do
-               if(m .le. nbmodes)then
-                  print*, " ", mm, lptr, componentFractionOK(k,m,getTracerIndex(m,l,.false.))
-               endif
-            endif
-#endif
          end do !Number of aerosol tracers
       end do ! old_cloud_nsubmix_loop
 
       !Set back to the original framework
       !Could probably continue in tracer-space from here
       !but return back to mixture for easier use of std. NCAR code
-      tendencyCounted(:)=.FALSE. 
+      tendencyCounted(:)=.FALSE.
       do m = 1, ntot_amode
          do l=1,nspec_amode(m)
             mm=mam_idx(m,l)
@@ -1853,10 +1757,6 @@ subroutine dropmixnuc( &
       end do
       ndropcol(i) = ndropcol(i)/gravit
 
-#ifdef EXTRATESTS
-      print*, "tendnd (#/kg/sec)", minval(tendnd(i,:)), maxval(tendnd(i,:))
-#endif
-
       if (prog_modal_aero) then
 
 #ifdef OSLO_AERO
@@ -1865,7 +1765,7 @@ subroutine dropmixnuc( &
       !test for correct transfer between in-cloud / no-cloud..
       newCloud(:,:) = 0.0_r8
       oldCloud(:,:) = 0.0_r8
-      newAerosol(:,:) = 0.0_r8   
+      newAerosol(:,:) = 0.0_r8
       oldAerosol(:,:) = 0.0_r8
       deltaCloud(:,:) = 0.0_r8
       !Check mass balances #2 (all new cloud droplet species are taken from aerosols or from layer below
@@ -1887,7 +1787,7 @@ subroutine dropmixnuc( &
             enddo
          enddo
       enddo! k
-      
+
       k = pver
       !Check imbalance in bottom layer
 
@@ -1903,7 +1803,7 @@ subroutine dropmixnuc( &
       enddo
 
       !if "deltaCloud" is positive in layer below it means that some aerosol species were sent up
-      
+
       !Move upwards
       do k=pver-1,1,-1
          kp1 = k + 1
@@ -1912,7 +1812,7 @@ subroutine dropmixnuc( &
                lptr = getTracerIndex(m,l,.false.)
                deltaCloud(k,lptr) = (oldAerosol(k,lptr)-newAerosol(k,lptr)) & !used to create cloud species
                            -   (newCloud(k,lptr) - oldCloud(k,lptr))    & !created cloud species
-                           -   0.0_r8 ! deltaCloud(kp1,lptr)                      !species received from below 
+                           -   0.0_r8 ! deltaCloud(kp1,lptr)                      !species received from below
             enddo
          enddo
       enddo !layers
@@ -1934,7 +1834,7 @@ subroutine dropmixnuc( &
          print*,"error in species : ", cnst_name(lptr2)
          do k=pver,1,-1
             print*, "budgets new/old ",k, newCloud(k,lptr2),oldCloud(k,lptr2),newaerosol(k,lptr2),oldAerosol(k,lptr2), deltaCloud(k,lptr2)
-         enddo 
+         enddo
          call endrun ("wrong mass budget in column")
       endif
 #endif
@@ -1977,8 +1877,8 @@ subroutine dropmixnuc( &
 
             !column tendencies for output
             if(.NOT. tendencyCounted(lptr))then
-               coltend_cw(i,lptr) = coltend_cw(i,lptr) & 
-                                   + sum( pdel(i,top_lev:pver)*(raercol_cw(top_lev:pver,mm,nnew) & !New, splitted, 
+               coltend_cw(i,lptr) = coltend_cw(i,lptr) &
+                                   + sum( pdel(i,top_lev:pver)*(raercol_cw(top_lev:pver,mm,nnew) & !New, splitted,
                                    - qqcw(mm)%fld(i,top_lev:pver) ) )/gravit*dtinv      !Old, total
                tendencyCounted(lptr) = .TRUE.
             else  !Already subtracted total old value, just add new
@@ -1991,22 +1891,22 @@ subroutine dropmixnuc( &
          end do  ! Tracers
       end do     ! Modes
 
-      !First, sum up all the tracer mass concentrations 
+      !First, sum up all the tracer mass concentrations
       do m = 1, ntot_amode
          do l = 1, nspec_amode(m)
             mm   = mam_idx(m,l)                !tracer indices for aerosol mass mixing ratios in raer-arrays
             lptr = getTracerIndex(m,l,.false.) !index in q-array (1-pcnst)
 
-            !This is a bit tricky since in our scheme the tracers can arrive several times 
+            !This is a bit tricky since in our scheme the tracers can arrive several times
             !the same tracer can exist in several modes, e.g. condensate!!
             !Here we sum this into "qqcw" and "ptend" so that they contain TOTAL of those tracers
-   
+
             !raercol and raercol_cw do not have totals, they have process-tracers splitted onto modes
 
             !Tendency at this point is the sum (original value subtracted below)
-            ptend%q(i,top_lev:pver,lptr)   =    ptend%q(i,top_lev:pver,lptr) + raercol(top_lev:pver,mm,nnew) 
+            ptend%q(i,top_lev:pver,lptr)   =    ptend%q(i,top_lev:pver,lptr) + raercol(top_lev:pver,mm,nnew)
             !for cloud water concentrations, we don't get tendency , only new concentration
-            qqcw(mm)%fld(i,top_lev:pver)   =    qqcw(mm)%fld(i,top_lev:pver) + raercol_cw(top_lev:pver,mm,nnew) 
+            qqcw(mm)%fld(i,top_lev:pver)   =    qqcw(mm)%fld(i,top_lev:pver) + raercol_cw(top_lev:pver,mm,nnew)
 
          end do
       end do
@@ -2014,14 +1914,14 @@ subroutine dropmixnuc( &
       !Need this check due to some tracers (e.g. condensate) several times
       tendencyCounted(:) = .FALSE.
 
-       ! Recalculating cloud-borne aerosol number mixing ratios 
+       ! Recalculating cloud-borne aerosol number mixing ratios
        do m=1,ntot_amode
 
          !Now that all new aerosol masses are summed up, we subtract the original concentrations to obtain the tendencies
          do l= 1,nspec_amode(m)
             mm = mam_idx(m,l)
             lptr = getTracerIndex(m,l,.false.)
-            if(.NOT. tendencyCounted(lptr)) then 
+            if(.NOT. tendencyCounted(lptr)) then
                ptend%q(i,top_lev:pver,lptr) = (ptend%q(i,top_lev:pver,lptr) - raer(mm)%fld(i,top_lev:pver))*dtinv
                coltend(i,lptr) = sum(pdel(i,top_lev:pver)*ptend%q(i,top_lev:pver,lptr))/gravit !Save column tendency
                tendencyCounted(lptr) = .TRUE.
@@ -2050,7 +1950,7 @@ subroutine dropmixnuc( &
             if(.NOT. tendencyCounted(lptr))then
                massBalance(top_lev:pver, lptr)  =   newMass(top_lev:pver,lptr) &
                             - raer(mm)%fld(i,top_lev:pver) &     !previous value
-                            - ptend%q(i,top_lev:pver,lptr)/dtinv !added during time step 
+                            - ptend%q(i,top_lev:pver,lptr)/dtinv !added during time step
                tendencyCounted(lptr) = .TRUE.
             endif
          enddo
@@ -2071,7 +1971,7 @@ subroutine dropmixnuc( &
                endif
                print*, "massBalance error loc", massBalance(kCrit, lptr), newMass(kCrit,lptr), raer(mm)%fld(i,kCrit)
                !If mass balance error is larger than 1.e-10 times new or original value ==> stop
-               if(abs(massBalance(kCrit,lptr)) .gt. 1.e-10_r8*raer(mm)%fld(i,kCrit) & 
+               if(abs(massBalance(kCrit,lptr)) .gt. 1.e-10_r8*raer(mm)%fld(i,kCrit) &
                   .and. abs(massBalance(kCrit,lptr)).gt.1.e-10_r8*newMass(kCrit,lptr) )then
                   stop
                endif
@@ -2096,19 +1996,6 @@ subroutine dropmixnuc( &
       endif
 
    end do  ! overall_main_i_loop
-
-#ifdef EXTRATESTS
-   !check reasonable values for ncldwtr!
-   do k=top_lev,pver
-      if(maxval(ncldwtr(:ncol,k)) .gt. 1.e20_r8)then
-         print*, "stopping (after dropmixnuc) wrong ncldwtr", maxloc(ncldwtr(:ncol,k))
-            do i=1,ncol
-               print*, "ncldwtr",i,k,ncldwtr(i,k)
-            enddo
-         call endrun("wrong ncldwtr (end of dropmixnuc)")
-      end if
-   end do !loop on layers
-#endif
 
    ! end of main loop over i/longitude ....................................
 
@@ -2137,7 +2024,7 @@ subroutine dropmixnuc( &
 #endif
    if(history_aerosol) then
    do l = 1, psat
-      call outfld(ccn_name(l), ccn(1,1,l), pcols, lchnk)
+      call outfld(ccn_name(l), ccn(:,:,l), pcols, lchnk)
    enddo
    end if
 #ifndef OSLO_AERO
@@ -2439,7 +2326,7 @@ subroutine activate_modal(wbar, sigw, wdiab, wminf, wmaxf, tair, rhoair,  &
          else
             call endrun("Problem with variable std. dev")
          endif
-#else 
+#else
    !Std cam
          amcube(m)=(3._r8*volume(m)/(4._r8*pi*exp45logsig(m)*na(m)))  ! only if variable size dist
 #endif
@@ -2906,8 +2793,8 @@ subroutine ccncalc_oslo(state &
    ! assumes an internal mixture of a multiple externally-mixed aerosol modes
    ! cgs units
 
-   ! This was used in the BACCHUS-project where it was agreed that 
-   ! CCN would not include cloud-borne aerosols. It is possible to 
+   ! This was used in the BACCHUS-project where it was agreed that
+   ! CCN would not include cloud-borne aerosols. It is possible to
    ! calculate cloud-borne aerosols, but it is complicated, and it was
    ! not needed when this code was made.
 
@@ -2940,7 +2827,7 @@ subroutine ccncalc_oslo(state &
    real(r8) a    ! surface tension parameter
    real(r8) sm   ! critical supersaturation at mode radius
    real(r8) arg  ! factor in eqn 15 ARGII
-   real(r8) argfactor !Coefficient in ARGI/ARGII 
+   real(r8) argfactor !Coefficient in ARGI/ARGII
    !     mathematical constants
    real(r8), parameter:: twothird=2.0_r8/3.0_r8
    real(r8), parameter:: sq2=sqrt(2.0_r8)
@@ -2955,13 +2842,13 @@ subroutine ccncalc_oslo(state &
    tair  => state%t
 
    super(:)=supersat(:)*0.01_r8
- 
+
    !This is curvature effect (A) in ARGI
    !eqn 5 in ARG1 (missing division by temperature, see below)
    surften_coef=2._r8*mwh2o*surften/(r_universal*rhoh2o)
 
-   !This is part of eqn 9 in ARGII 
-   !where A smcoefcoef is 2/3^(3/2) 
+   !This is part of eqn 9 in ARGII
+   !where A smcoefcoef is 2/3^(3/2)
    smcoefcoef=2._r8/sqrt(27._r8)
 
    ccn(:,:,:) = 0._r8
@@ -2976,27 +2863,27 @@ subroutine ccncalc_oslo(state &
 
             !standard factor for transforming size distr
             !volume ==> number (google psd.pdf by zender)
-               exp45logsig_var = & 
+               exp45logsig_var = &
                   exp(4.5_r8*lnsigma(i,k,m)*lnsigma(i,k,m))
 
             !Numbe rmedian radius (power of three)
             !By definition of lognormal distribution
-               amcube =(3._r8*volumeConcentration(i,k,m) & 
+               amcube =(3._r8*volumeConcentration(i,k,m) &
                   /(4._r8*pi*exp45logsig_var*numberConcentration(i,k,m)))  ! only if variable size dist
 
 
-            !This is part of eqn 9 in ARGII 
-            !where A smcoefcoef is 2/3^(3/2) 
+            !This is part of eqn 9 in ARGII
+            !where A smcoefcoef is 2/3^(3/2)
                smcoef = smcoefcoef * a * sqrt(a)
 
-            !This is finally solving eqn 9 
+            !This is finally solving eqn 9
             !(solve for critical supersat of mode)
                sm=smcoef   &
                / sqrt(hygroscopicity(i,k,m)*amcube) ! critical supersaturation
 
             !Solve eqn 13 in ARGII
                do lsat = 1,psat
-   
+
                !eqn 15 in ARGII
                   argfactor=twothird/(sq2*lnSigma(i,k,m))
 
@@ -3033,7 +2920,7 @@ subroutine loadaer( &
    type(physics_buffer_desc),   pointer    :: pbuf(:)
 
    integer,  intent(in) :: istart      ! start column index (1 <= istart <= istop <= pcols)
-   integer,  intent(in) :: istop       ! stop column index  
+   integer,  intent(in) :: istop       ! stop column index
    integer,  intent(in) :: m           ! mode index
    integer,  intent(in) :: k           ! level index
    real(r8), intent(in) :: cs(:,:)     ! air density (kg/m3)
@@ -3129,7 +3016,3 @@ end subroutine loadaer
 !===============================================================================
 
 end module ndrop
-
-
-
-

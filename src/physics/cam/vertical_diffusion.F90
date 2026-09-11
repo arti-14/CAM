@@ -1053,16 +1053,16 @@ subroutine vertical_diffusion_tend( &
           tem2(:ncol,:), ftem(:ncol,:))
      ftem_prePBL(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
 
-     call outfld( 'qt_pre_PBL   ', qt_prePBL,                 pcols, lchnk )
-     call outfld( 'sl_pre_PBL   ', sl_prePBL,                 pcols, lchnk )
-     call outfld( 'slv_pre_PBL  ', slv_prePBL,                pcols, lchnk )
-     call outfld( 'u_pre_PBL    ', state%u,                   pcols, lchnk )
-     call outfld( 'v_pre_PBL    ', state%v,                   pcols, lchnk )
-     call outfld( 'qv_pre_PBL   ', state%q(:ncol,:,1),        pcols, lchnk )
-     call outfld( 'ql_pre_PBL   ', state%q(:ncol,:,ixcldliq), pcols, lchnk )
-     call outfld( 'qi_pre_PBL   ', state%q(:ncol,:,ixcldice), pcols, lchnk )
-     call outfld( 't_pre_PBL    ', state%t,                   pcols, lchnk )
-     call outfld( 'rh_pre_PBL   ', ftem_prePBL,               pcols, lchnk )
+     call outfld( 'qt_pre_PBL   ', qt_prePBL,             pcols, lchnk )
+     call outfld( 'sl_pre_PBL   ', sl_prePBL,             pcols, lchnk )
+     call outfld( 'slv_pre_PBL  ', slv_prePBL,            pcols, lchnk )
+     call outfld( 'u_pre_PBL    ', state%u,               pcols, lchnk )
+     call outfld( 'v_pre_PBL    ', state%v,               pcols, lchnk )
+     call outfld( 'qv_pre_PBL   ', state%q(:,:,1),        pcols, lchnk )
+     call outfld( 'ql_pre_PBL   ', state%q(:,:,ixcldliq), pcols, lchnk )
+     call outfld( 'qi_pre_PBL   ', state%q(:,:,ixcldice), pcols, lchnk )
+     call outfld( 't_pre_PBL    ', state%t,               pcols, lchnk )
+     call outfld( 'rh_pre_PBL   ', ftem_prePBL,           pcols, lchnk )
 
   end if
 
@@ -1149,7 +1149,7 @@ subroutine vertical_diffusion_tend( &
           p_dry , state%t      , rhoi_dry,  ztodt         , taux          , &
           tauy          , shflux             , cflux        , &
           kvh           , kvm                , kvq          , cgs           , cgh           , &
-          state%zi      , ksrftms            , dragblj      , & 
+          state%zi      , ksrftms            , dragblj      , &
           qmincg       , fieldlist_dry , fieldlist_molec,&
           u_tmp         , v_tmp              , q_tmp        , s_tmp         ,                 &
           tautmsx_temp  , tautmsy_temp       , dtk_temp     , topflx_temp   , errstring     , &
@@ -1386,33 +1386,33 @@ subroutine vertical_diffusion_tend( &
 
   if (.not. do_pbl_diags) then
 
-     call outfld( 'sl_aft_PBL'   , sl,                        pcols, lchnk )
-     call outfld( 'qt_aft_PBL'   , qt,                        pcols, lchnk )
-     call outfld( 'slv_aft_PBL'  , slv,                       pcols, lchnk )
-     call outfld( 'u_aft_PBL'    , u_aft_PBL,                 pcols, lchnk )
-     call outfld( 'v_aft_PBL'    , v_aft_PBL,                 pcols, lchnk )
-     call outfld( 'qv_aft_PBL'   , qv_aft_PBL,                pcols, lchnk )
-     call outfld( 'ql_aft_PBL'   , ql_aft_PBL,                pcols, lchnk )
-     call outfld( 'qi_aft_PBL'   , qi_aft_PBL,                pcols, lchnk )
-     call outfld( 't_aft_PBL '   , t_aftPBL,                  pcols, lchnk )
-     call outfld( 'rh_aft_PBL'   , ftem_aftPBL,               pcols, lchnk )
-     call outfld( 'slflx_PBL'    , slflx,                     pcols, lchnk )
-     call outfld( 'qtflx_PBL'    , qtflx,                     pcols, lchnk )
-     call outfld( 'uflx_PBL'     , uflx,                      pcols, lchnk )
-     call outfld( 'vflx_PBL'     , vflx,                      pcols, lchnk )
-     call outfld( 'slflx_cg_PBL' , slflx_cg,                  pcols, lchnk )
-     call outfld( 'qtflx_cg_PBL' , qtflx_cg,                  pcols, lchnk )
-     call outfld( 'uflx_cg_PBL'  , uflx_cg,                   pcols, lchnk )
-     call outfld( 'vflx_cg_PBL'  , vflx_cg,                   pcols, lchnk )
-     call outfld( 'slten_PBL'    , slten,                     pcols, lchnk )
-     call outfld( 'qtten_PBL'    , qtten,                     pcols, lchnk )
-     call outfld( 'uten_PBL'     , ptend%u(:ncol,:),          pcols, lchnk )
-     call outfld( 'vten_PBL'     , ptend%v(:ncol,:),          pcols, lchnk )
-     call outfld( 'qvten_PBL'    , ptend%q(:ncol,:,1),        pcols, lchnk )
-     call outfld( 'qlten_PBL'    , ptend%q(:ncol,:,ixcldliq), pcols, lchnk )
-     call outfld( 'qiten_PBL'    , ptend%q(:ncol,:,ixcldice), pcols, lchnk )
-     call outfld( 'tten_PBL'     , tten,                      pcols, lchnk )
-     call outfld( 'rhten_PBL'    , rhten,                     pcols, lchnk )
+     call outfld( 'sl_aft_PBL'   , sl,                    pcols, lchnk )
+     call outfld( 'qt_aft_PBL'   , qt,                    pcols, lchnk )
+     call outfld( 'slv_aft_PBL'  , slv,                   pcols, lchnk )
+     call outfld( 'u_aft_PBL'    , u_aft_PBL,             pcols, lchnk )
+     call outfld( 'v_aft_PBL'    , v_aft_PBL,             pcols, lchnk )
+     call outfld( 'qv_aft_PBL'   , qv_aft_PBL,            pcols, lchnk )
+     call outfld( 'ql_aft_PBL'   , ql_aft_PBL,            pcols, lchnk )
+     call outfld( 'qi_aft_PBL'   , qi_aft_PBL,            pcols, lchnk )
+     call outfld( 't_aft_PBL '   , t_aftPBL,              pcols, lchnk )
+     call outfld( 'rh_aft_PBL'   , ftem_aftPBL,           pcols, lchnk )
+     call outfld( 'slflx_PBL'    , slflx,                 pcols, lchnk )
+     call outfld( 'qtflx_PBL'    , qtflx,                 pcols, lchnk )
+     call outfld( 'uflx_PBL'     , uflx,                  pcols, lchnk )
+     call outfld( 'vflx_PBL'     , vflx,                  pcols, lchnk )
+     call outfld( 'slflx_cg_PBL' , slflx_cg,              pcols, lchnk )
+     call outfld( 'qtflx_cg_PBL' , qtflx_cg,              pcols, lchnk )
+     call outfld( 'uflx_cg_PBL'  , uflx_cg,               pcols, lchnk )
+     call outfld( 'vflx_cg_PBL'  , vflx_cg,               pcols, lchnk )
+     call outfld( 'slten_PBL'    , slten,                 pcols, lchnk )
+     call outfld( 'qtten_PBL'    , qtten,                 pcols, lchnk )
+     call outfld( 'uten_PBL'     , ptend%u(:,:),          pcols, lchnk )
+     call outfld( 'vten_PBL'     , ptend%v(:,:),          pcols, lchnk )
+     call outfld( 'qvten_PBL'    , ptend%q(:,:,1),        pcols, lchnk )
+     call outfld( 'qlten_PBL'    , ptend%q(:,:,ixcldliq), pcols, lchnk )
+     call outfld( 'qiten_PBL'    , ptend%q(:,:,ixcldice), pcols, lchnk )
+     call outfld( 'tten_PBL'     , tten,                  pcols, lchnk )
+     call outfld( 'rhten_PBL'    , rhten,                 pcols, lchnk )
 
   end if
 
@@ -1446,7 +1446,7 @@ subroutine vertical_diffusion_tend( &
   call outfld( 'DUV'          , ptend%u,                   pcols, lchnk )
   call outfld( 'DVV'          , ptend%v,                   pcols, lchnk )
   do m = 1, pcnst
-     call outfld( vdiffnam(m) , ptend%q(1,1,m),            pcols, lchnk )
+     call outfld( vdiffnam(m) , ptend%q(:,:,m),            pcols, lchnk )
   end do
   if( do_molec_diff ) then
      call outfld( 'TTPXMLC'  , topflx,                    pcols, lchnk )

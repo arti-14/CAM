@@ -12,23 +12,23 @@ module micro_mg2_0
 !
 ! invoked in CAM by specifying -microphys=mg2.0
 !
-! References: 
+! References:
 !
-!           Gettelman, A. and H. Morrison, Advanced Two-Moment Microphysics for Global Models. 
+!           Gettelman, A. and H. Morrison, Advanced Two-Moment Microphysics for Global Models.
 !
-!           Part I: Off line tests and comparisons with other schemes. 
+!           Part I: Off line tests and comparisons with other schemes.
 !
-!           J. Climate, 28, 1268-1287. doi: 10.1175/JCLI-D-14-00102.1, 2015. 
+!           J. Climate, 28, 1268-1287. doi: 10.1175/JCLI-D-14-00102.1, 2015.
 !
 !
 !
-!           Gettelman, A., H. Morrison, S. Santos, P. Bogenschutz and P. H. Caldwell 
+!           Gettelman, A., H. Morrison, S. Santos, P. Bogenschutz and P. H. Caldwell
 !
-!           Advanced Two-Moment Microphysics for Global Models. 
+!           Advanced Two-Moment Microphysics for Global Models.
 !
-!           Part II: Global model solutions and Aerosol-Cloud Interactions. 
+!           Part II: Global model solutions and Aerosol-Cloud Interactions.
 !
-!           J. Climate, 28, 1288-1307. doi:10.1175/JCLI-D-14-00103.1 , 2015. 
+!           J. Climate, 28, 1288-1307. doi:10.1175/JCLI-D-14-00103.1 , 2015.
 !
 ! for questions contact Hugh Morrison, Andrew Gettelman
 ! e-mail: morrison@ucar.edu, andrew@ucar.edu
@@ -176,8 +176,8 @@ real(r8) :: dcs
 ! externally (kg)
 real(r8), parameter :: mi0l_min = 4._r8/3._r8*pi*rhow*(4.e-6_r8)**3
 
-! Ice number sublimation parameter. Assume some decrease in ice number with sublimation if non-zero. Else, no decrease in number with sublimation. 
-  real(r8), parameter :: sublim_factor =0.0_r8      !number sublimation factor.  
+! Ice number sublimation parameter. Assume some decrease in ice number with sublimation if non-zero. Else, no decrease in number with sublimation.
+  real(r8), parameter :: sublim_factor =0.0_r8      !number sublimation factor.
 
 
 !=========================================================
@@ -403,7 +403,7 @@ subroutine micro_mg_tend ( &
      drout2,                       dsout2,                       &
      freqs,                        freqr,                        &
      nfice,                        qcrat,                        &
-     errstring,                                                  & 
+     errstring,                                                  &
 !AL right names?
      nnuccctot, nnuccttot, npsacwstot, nsubctot, npratot,       &
      nprc1tot, ncsedtentot, nisedtentot, nmelttot, nhomotot,    &
@@ -435,7 +435,7 @@ subroutine micro_mg_tend ( &
   use micro_mg_utils, only: &
        ice_deposition_sublimation, &
        sb2001v2_liq_autoconversion,&
-       sb2001v2_accre_cld_water_rain,&       
+       sb2001v2_accre_cld_water_rain,&
        kk2000_liq_autoconversion, &
        ice_autoconversion, &
        immersion_freezing, &
@@ -493,7 +493,7 @@ subroutine micro_mg_tend ( &
   ! (For example, in CAM, the last dimension is always size 4.)
   real(r8), intent(in) :: rndst(:,:,:)  ! radius of each dust bin, for contact freezing (from microp_aero_ts) (m)
   real(r8), intent(in) :: nacon(:,:,:) ! number in each dust bin, for contact freezing  (from microp_aero_ts) (1/m^3)
-  
+
   ! output arguments
 
   real(r8), intent(out) :: qcsinksum_rate1ord(mgncol,nlev) ! 1st order rate for
@@ -598,7 +598,7 @@ subroutine micro_mg_tend ( &
  real(r8), intent(out) :: nnuccctot(mgncol,nlev)   ! immersion freezing
  real(r8), intent(out) :: nnuccttot(mgncol,nlev)   ! contact freezing
  real(r8), intent(out) :: npsacwstot(mgncol,nlev)  ! accr. snow
- real(r8), intent(out) :: nsubctot(mgncol,nlev)    ! evaporation of droplet 
+ real(r8), intent(out) :: nsubctot(mgncol,nlev)    ! evaporation of droplet
  real(r8), intent(out) :: npratot(mgncol,nlev)     ! accretion
  real(r8), intent(out) :: nprc1tot(mgncol,nlev)    ! autoconversion
  real(r8), intent(out) :: ncsedtentot(mgncol,nlev) ! nqc sedimentation tendency
@@ -614,7 +614,7 @@ subroutine micro_mg_tend ( &
  real(r8), intent(out) :: nnudeptot(mgncol,nlev)   ! deposition?
  real(r8), intent(out) :: npccntot(mgncol,nlev)    ! droplet activation
  real(r8), intent(out) :: nnuccdtot(mgncol,nlev)   ! ni nucleation
- real(r8), intent(out) :: mnudeptot(mgncol,nlev)   ! deposition (mass) 
+ real(r8), intent(out) :: mnudeptot(mgncol,nlev)   ! deposition (mass)
 !
  real(r8), intent(out) :: nctnszmx(mgncol,nlev)  ! nc tuning: maximum slope (reduction of number)
  real(r8), intent(out) :: nctnszmn(mgncol,nlev)  ! nc tuning: minimum slope (increase of numer)
@@ -774,7 +774,7 @@ subroutine micro_mg_tend ( &
   ! bergeron process
   real(r8) :: berg(mgncol,nlev)   ! mass mixing ratio (cloud ice)
   real(r8) :: bergs(mgncol,nlev)  ! mass mixing ratio (snow)
- 
+
   ! fallspeeds
   ! number-weighted
   real(r8) :: uns(mgncol,nlev)    ! snow
@@ -1037,7 +1037,7 @@ subroutine micro_mg_tend ( &
   nnudeptot=0._r8
   npccntot=0._r8
   nnuccdtot=0._r8
-  mnudeptot=0._r8 
+  mnudeptot=0._r8
   mnuccritot=0._r8
   nnuccritot=0._r8
 
@@ -1260,7 +1260,7 @@ subroutine micro_mg_tend ( &
         end if
 
      end do
-  end do 
+  end do
 
   do k=1,nlev
     do i=1,mgncol
@@ -1297,7 +1297,7 @@ subroutine micro_mg_tend ( &
            end if
         end if
      end do
-  end do 
+  end do
 
   do k=1,nlev
     do i=1,mgncol
@@ -1417,12 +1417,12 @@ subroutine micro_mg_tend ( &
 
      call size_dist_param_basic(mg_ice_props, qiic(:,k), niic(:,k), &
           lami(:,k), mgncol, n0=n0i(:,k))
-	  
-     ! Alternative autoconversion 
+
+     ! Alternative autoconversion
      if (do_sb_physics) then
        call sb2001v2_liq_autoconversion(pgam(:,k),qcic(1:mgncol,k),ncic(:,k), &
-            qric(:,k),rho(:,k),relvar(:,k),prc(:,k),nprc(:,k),nprc1(:,k), mgncol)     
-     endif	  
+            qric(:,k),rho(:,k),relvar(:,k),prc(:,k),nprc(:,k),nprc1(:,k), mgncol)
+     endif
 
      !.......................................................................
      ! Autoconversion of cloud ice to snow
@@ -1587,7 +1587,7 @@ subroutine micro_mg_tend ( &
 
      if (do_sb_physics) then
        call sb2001v2_accre_cld_water_rain(qcic(1:mgncol,k), ncic(:,k), qric(:,k), &
-            rho(:,k), relvar(:,k), pra(:,k), npra(:,k), mgncol)     
+            rho(:,k), relvar(:,k), pra(:,k), npra(:,k), mgncol)
      else
        call accrete_cloud_water_rain(microp_uniform, qric(:,k), qcic(1:mgncol,k), &
             ncic(:,k), relvar(:,k), accre_enhan(:,k), pra(:,k), npra(:,k), mgncol)
@@ -2079,15 +2079,35 @@ subroutine micro_mg_tend ( &
              nprc(i,k)*lcldm(i,k)+(nsubr(i,k)-npracs(i,k)-nnuccr(i,k) &
              -nnuccri(i,k)+nragg(i,k))*precip_frac(i,k)
 
+!! In NorESM, there was an artificial limit on the number of ice particles.
+!! By default, NorESM2.1 is using a 'corrected' ice delimiter
+!! Uncomment the line below to recover the NorESM2 ice delimiter behavior
+!! See the NorESM2.1 release notes for more information.
+!#define NORESM2_ICE_DELIMITER
+#ifndef NORESM2_ICE_DELIMITER
         ! make sure that ni at advanced time step does not exceed
-        ! maximum (existing N + source terms*dt), which is possible if mtime < deltat
-        ! note that currently mtime = deltat
-        !================================================================
+        ! maximum (existing N + source terms*dt), which is possible
+        ! if mtime < deltat
+        ! Note that currently mtime = deltat
 
-        if (do_cldice .and. nitend(i,k).gt.0._r8.and.ni(i,k)+nitend(i,k)*deltat.gt.nimax(i,k)) then
-          nitncons(i,k) = nitncons(i,k) + nitend(i,k)-max(0._r8,(nimax(i,k)-ni(i,k))/deltat) !AL
+        !================================================================
+        !shofer---
+        if (nnucct(i,k)+nnuccc(i,k)+nnudep(i,k) > 0._r8) then
+           nimax(i,k) = nimax(i,k)+(nnucct(i,k)+nnuccc(i,k)+nnudep(i,k))*lcldm(i,k)*deltat
+        end if
+
+        if (do_cldice .and. (nitend(i,k) > 0._r8) .and.                    &
+            (ni(i,k) + (nitend(i,k)*deltat) > nimax(i,k))) then
+           nitncons(i,k) = nitncons(i,k) + nitend(i,k) - max(0._r8,(nimax(i,k)-ni(i,k))/deltat)
            nitend(i,k)=max(0._r8,(nimax(i,k)-ni(i,k))/deltat)
         end if
+        !shofer---
+#else
+        if (do_cldice .and. nitend(i,k).gt.0._r8.and.ni(i,k)+nitend(i,k)*deltat.gt.nimax(i,k)) then
+           nitncons(i,k) = nitncons(i,k) + nitend(i,k)-max(0._r8,(nimax(i,k)-ni(i,k))/deltat) !AL
+           nitend(i,k)=max(0._r8,(nimax(i,k)-ni(i,k))/deltat)
+        end if
+#endif
 
      end do
 
@@ -2248,15 +2268,15 @@ subroutine micro_mg_tend ( &
            ! particles (blend over 18-20 um)
            irad = 1.5_r8 / lami(i,k) * 1e6_r8
            ifrac = min(1._r8, max(0._r8, (irad - 18._r8) / 2._r8))
- 
+
            if (ifrac .lt. 1._r8) then
-              vtrmi(i,k) = ifrac * vtrmi(i,k) + & 
+              vtrmi(i,k) = ifrac * vtrmi(i,k) + &
                  (1._r8 - ifrac) * &
                  min(ajn(i,k)*gamma_bj_plus4/(6._r8*lami(i,k)**bj), &
                  1.2_r8*rhof(i,k))
 
               fi(i,k) = g*rho(i,k)*vtrmi(i,k)
-              fni(i,k) = ifrac * fni(i,k) + & 
+              fni(i,k) = ifrac * fni(i,k) + &
                  (1._r8 - ifrac) * &
                  g*rho(i,k)* &
                  min(ajn(i,k)*gamma_bj_plus1/lami(i,k)**bj,1.2_r8*rhof(i,k))
@@ -2824,8 +2844,8 @@ subroutine micro_mg_tend ( &
                  tlat(i,k)=tlat(i,k)+xlf*dum*dumc(i,k)/deltat
               end if
            end if
-        enddo 
-     enddo 
+        enddo
+     enddo
      ! remove any excess over-saturation, which is possible due to non-linearity when adding
      ! together all microphysical processes
      !-----------------------------------------------------------------
@@ -2867,8 +2887,8 @@ subroutine micro_mg_tend ( &
               qvres(i,k)=-dum
               tlat(i,k)=tlat(i,k)+dum*(1._r8-dum1)*xxlv+dum*dum1*xxls
            end if
-        enddo 
-     enddo 
+        enddo
+     enddo
   end if
 
   ! calculate effective radius for pass to radiation code

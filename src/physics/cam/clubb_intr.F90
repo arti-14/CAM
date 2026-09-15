@@ -2692,13 +2692,15 @@ end subroutine clubb_init_cnst
    !               rcm_in_layer,cldice_emulator,state1%q(i,k,ixq),&
    !               cloud_frac,shf_emulator(1:ncol), coszrs, th(1:ncol,:),&
    !               pwsigma(1:ncol,:), pemu_mask(1:ncol), pemu_cb(1:ncol,:))
-                  
-   call emulator(1,ncol, ncol, 1, pver, pverp, &
+   pemu_mask(:) = 0.0        
+   call emulator(1,pcols, pcols, 1, pver, pverp, &
                   state1%pint(:,:), state1%pmid(:,:), &
                   state1%q(:,:,ixcldliq),state1%q(:,:,ixcldice),state1%q(:,:,ixq),&
-                  cloud_frac,cam_in%shf(1:ncol), coszrs, th(1:ncol,:),&
-                  pwsigma(1:ncol,:), pemu_mask(1:ncol), pemu_cb(1:ncol,:))
-
+                  cloud_frac(:,1:pver),cam_in%shf(:), coszrs, th(:,:),&
+                  pwsigma(:,:), pemu_mask(:), pemu_cb(:,:))
+   pemu_1(:,:) = int(0.)
+   pemun_1(:,:) = int(0)
+   pemu_0(:,:) = int(0)
    do i = 1,ncol
       !do k = 1, pver
       if (int(pemu_mask(i)) >0.) then

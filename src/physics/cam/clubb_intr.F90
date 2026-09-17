@@ -1387,7 +1387,7 @@ end subroutine clubb_init_cnst
    ! Contains constant values as input, stratocumulus points will be updated by emulator
    !REAL(dp):: pemu_mask(pcols)    ! emulator mask 
    REAL(dp):: pemu_cb(pcols,pver),pemu_1(pcols,pver),pemu_0(pcols,pver),pemun_1(pcols,pver)	    ! Mask for single layer stratocumulus cloud base (3D variable)   
-   REAL(dp):: cldice_emulator(pcols,pver)	    ! Mask for single layer stratocumulus cloud base (3D variable)   
+   REAL(dp):: pmid_emu(pcols,pver)	    ! Mask for single layer stratocumulus cloud base (3D variable)   
    
 #endif
    det_s(:)   = 0.0_r8
@@ -2674,12 +2674,12 @@ end subroutine clubb_init_cnst
 
    ! Cosine solar zenith angle for current time step
    calday = get_curr_calday()
-   call get_rlat_all_p(lchnk, ncol, clat)
-   call get_rlon_all_p(lchnk, ncol, clon)
+   call get_rlat_all_p(lchnk, pcols, clat)
+   call get_rlon_all_p(lchnk, pcols, clon)
 
    call shr_orb_decl(calday, eccen, mvelpp, lambm0, obliqr, &
                      delta, eccf)
-   do i = 1, ncol
+   do i = 1, pcols
       coszrs(i) = shr_orb_cosz(calday, clat(i), clon(i), delta, dt_avg, cosz_rad_call) !+tht
    end do
    ! ------------------------------------------------- !
@@ -2693,6 +2693,9 @@ end subroutine clubb_init_cnst
    !               cloud_frac,shf_emulator(1:ncol), coszrs, th(1:ncol,:),&
    !               pwsigma(1:ncol,:), pemu_mask(1:ncol), pemu_cb(1:ncol,:))
    pemu_mask(:) = 0.0        
+
+   pmid_emu = state1%pmid(:,:)
+   pmid_emu(:,pverp)  = state1%ps(:)
    call emulator(1,pcols, pcols, 1, pver, pverp, &
                   state1%pint(:,:), state1%pmid(:,:), &
                   state1%q(:,:,ixcldliq),state1%q(:,:,ixcldice),state1%q(:,:,ixq),&
@@ -2701,7 +2704,7 @@ end subroutine clubb_init_cnst
    pemu_1(:,:) = int(0.)
    pemun_1(:,:) = int(0)
    pemu_0(:,:) = int(0)
-   do i = 1,ncol
+   do i = 1,pcols
       !do k = 1, pver
       if (int(pemu_mask(i)) >0.) then
          pemu_1(i,:) = int(1.)

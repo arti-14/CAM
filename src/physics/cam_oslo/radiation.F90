@@ -65,7 +65,8 @@ public :: &
 
 integer,public, allocatable :: cosp_cnt(:)       ! counter for cosp
 integer,public              :: cosp_cnt_init = 0 !initial value for cosp counter
-
+integer :: iradsw_emu = -1     ! freq. of shortwave radiation calc in time steps to use in emulator
+                          
 type rad_out_t
 
    real(r8) :: solin(pcols)         ! Solar incident flux
@@ -219,6 +220,7 @@ subroutine radiation_readnl(nlfile)
       write(iulog,*) 'RRTMG radiation scheme parameters:'
       write(iulog,10) iradsw, iradlw, irad_always, use_rad_dt_cosz, spectralflux
    end if
+   iradsw_emu = iradsw
 
 10 format('  Frequency (timesteps) of Shortwave Radiation calc:  ',i5/, &
           '  Frequency (timesteps) of Longwave Radiation calc:   ',i5/, &

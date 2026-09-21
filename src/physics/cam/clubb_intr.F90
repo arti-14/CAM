@@ -1068,6 +1068,7 @@ end subroutine clubb_init_cnst
    use cam_control_mod,    only: eccen, mvelpp, lambm0, obliqr
    use shr_orb_mod,        only: shr_orb_decl, shr_orb_cosz
    use mo_emulator,         only: emulator
+   use radiation,          only:iradsw_emu
    !!--updraft--emulator---!!
 
 #ifdef CLUBB_SGS
@@ -2673,7 +2674,7 @@ end subroutine clubb_init_cnst
 
    call shr_orb_decl(calday, eccen, mvelpp, lambm0, obliqr, &
                      delta, eccf)
-   dt_avg = 2*dtime
+   dt_avg = iradsw_emu*dtime
    do i = 1, pcols
       coszrs(i) = shr_orb_cosz(calday, clat(i), clon(i), delta, dt_avg, cosz_rad_call) !+tht
    end do

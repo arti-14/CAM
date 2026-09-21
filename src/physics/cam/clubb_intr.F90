@@ -2673,6 +2673,7 @@ end subroutine clubb_init_cnst
 
    call shr_orb_decl(calday, eccen, mvelpp, lambm0, obliqr, &
                      delta, eccf)
+   dt_avg = 2*dtime
    do i = 1, pcols
       coszrs(i) = shr_orb_cosz(calday, clat(i), clon(i), delta, dt_avg, cosz_rad_call) !+tht
    end do

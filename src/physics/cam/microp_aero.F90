@@ -543,6 +543,7 @@ subroutine microp_aero_run ( &
             else
             wsub(i,k) = sqrt(0.5_r8*(tke(i,k) + tke(i,k+1))*(2._r8/3._r8))
             wsub(i,k) = min(wsub(i,k),10._r8)
+         endif
          case default 
             ! get sub-grid vertical velocity from diff coef.
             ! following morrison et al. 2005, JAS

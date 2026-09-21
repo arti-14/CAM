@@ -65,7 +65,7 @@ public :: &
 
 integer,public, allocatable :: cosp_cnt(:)       ! counter for cosp
 integer,public              :: cosp_cnt_init = 0 !initial value for cosp counter
-integer :: iradsw_emu = -1     ! freq. of shortwave radiation calc in time steps to use in emulator
+integer,public :: iradsw_emu = -1     ! freq. of shortwave radiation calc in time steps to use in emulator
                           
 type rad_out_t
 

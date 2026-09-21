@@ -25,6 +25,8 @@ module clubb_intr
   use pbl_utils,     only: calc_ustar, calc_obklen
   use ref_pres,      only: top_lev => trop_cloud_top_lev  
   use zm_conv_intr,  only: zmconv_microp
+  use radiation,          only:iradsw_emu
+
   implicit none
 
   private
@@ -1068,7 +1070,6 @@ end subroutine clubb_init_cnst
    use cam_control_mod,    only: eccen, mvelpp, lambm0, obliqr
    use shr_orb_mod,        only: shr_orb_decl, shr_orb_cosz
    use mo_emulator,         only: emulator
-   use radiation,          only:iradsw_emu
    !!--updraft--emulator---!!
 
 #ifdef CLUBB_SGS

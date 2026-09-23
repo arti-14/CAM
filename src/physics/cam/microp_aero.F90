@@ -297,6 +297,7 @@ subroutine microp_aero_init
 
    call addfld('WSUB',   (/ 'lev' /), 'A', 'm/s', 'Diagnostic sub-grid vertical velocity'                   )
    call addfld('WSUBI',  (/ 'lev' /), 'A', 'm/s', 'Diagnostic sub-grid vertical velocity for ice'           )
+   call addfld('WCLUBB',  (/ 'lev' /), 'A', 'm/s', 'Diagnostic sub-grid vertical velocity from CLUBB'           )
 
    if (history_amwg) then
       call add_default ('WSUB     ', 1, ' ')
@@ -419,6 +420,7 @@ subroutine microp_aero_run ( &
 
    real(r8) :: wsub(pcols,pver)    ! diagnosed sub-grid vertical velocity st. dev. (m/s)
    real(r8) :: wsubi(pcols,pver)   ! diagnosed sub-grid vertical velocity ice (m/s)
+   real(r8) :: wclubb(pcols,pver)   ! diagnosed sub-grid vertical velocity ice (m/s)
    real(r8) :: nucboas
 
    real(r8) :: wght
@@ -531,12 +533,15 @@ subroutine microp_aero_run ( &
    ! Set minimum values above top_lev.
    wsub(:ncol,:top_lev-1)  = 0.20_r8
    wsubi(:ncol,:top_lev-1) = 0.001_r8
+   wclubb(:ncol,:top_lev-1) = 0.2_r8
 
    do k = top_lev, pver
       do i = 1, ncol
 
          select case (trim(eddy_scheme))
          case ('diag_TKE', 'CLUBB_SGS')
+         wclubb(i,k) = sqrt(0.5_r8*(tke(i,k) + tke(i,k+1))*(2._r8/3._r8))
+
          if (pemu_mask(i) > 0.) then
                !--using updraft velocity from emulator--!
                wsub(i,k) = wu_emulator(i,k)
@@ -567,6 +572,7 @@ subroutine microp_aero_run ( &
 
    call outfld('WSUB',   wsub, pcols, lchnk)
    call outfld('WSUBI', wsubi, pcols, lchnk)
+   call outfld('WCLUBB', wsubi, pcols, lchnk)
 
    if (trim(eddy_scheme) == 'CLUBB_SGS') deallocate(tke)
 

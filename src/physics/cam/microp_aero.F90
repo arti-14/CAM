@@ -540,15 +540,8 @@ subroutine microp_aero_run ( &
 
          select case (trim(eddy_scheme))
          case ('diag_TKE', 'CLUBB_SGS')
-         wclubb(i,k) = sqrt(0.5_r8*(tke(i,k) + tke(i,k+1))*(2._r8/3._r8))
-
-         if (pemu_mask(i) > 0.) then
-               !--using updraft velocity from emulator--!
-               wsub(i,k) = wu_emulator(i,k)
-            else
             wsub(i,k) = sqrt(0.5_r8*(tke(i,k) + tke(i,k+1))*(2._r8/3._r8))
             wsub(i,k) = min(wsub(i,k),10._r8)
-         endif
          case default 
             ! get sub-grid vertical velocity from diff coef.
             ! following morrison et al. 2005, JAS
@@ -565,7 +558,11 @@ subroutine microp_aero_run ( &
             wsubi(i,k) = min(wsubi(i,k), 0.2_r8)
          endif
 
-         wsub(i,k)  = max(0.20_r8, wsub(i,k))
+         wclubb(i,k) = wsub(i,k) 
+         if (pemu_mask(i) > 0.) then
+               wsub(i,k) = wu_emulator(i,k)!--using updraft velocity from emulator--!
+         endif
+         wsub(i,k) = max(0.20_r8, wsub(i,k))
 
       end do
    end do

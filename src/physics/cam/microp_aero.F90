@@ -557,12 +557,11 @@ subroutine microp_aero_run ( &
          if (.not. use_preexisting_ice) then
             wsubi(i,k) = min(wsubi(i,k), 0.2_r8)
          endif
-         
+
+         wclubb(i,k) = wsub(i,k)
          if (pemu_mask(i) > 0.) then
                wsub(i,k) = wu_emulator(i,k) !--using updraft velocity from emulator--!
          endif
-         wclubb(i,k) = wsub(i,k)
-
          wsub(i,k)  = max(0.20_r8, wsub(i,k))
 
       end do

@@ -178,12 +178,12 @@ subroutine microp_aero_init
       tke_idx      = pbuf_get_index('tke')   
    case ('CLUBB_SGS')
       wp2_idx = pbuf_get_index('WP2_nadv')
-      wu_emulator_idx = pbuf_get_index('WU_EMULATOR')
-      pemu_mask_idx = pbuf_get_index('pemu_mask')
    case default
       kvh_idx      = pbuf_get_index('kvh')
    end select
 
+   wu_emulator_idx = pbuf_get_index('WU_EMULATOR')
+   pemu_mask_idx = pbuf_get_index('pemu_mask')
    ! clim_modal_aero determines whether modal aerosols are used in the climate calculation.
    ! The modal aerosols can be either prognostic or prescribed.
    call rad_cnst_get_info(0, nmodes=nmodes)
@@ -301,6 +301,7 @@ subroutine microp_aero_init
 
    if (history_amwg) then
       call add_default ('WSUB     ', 1, ' ')
+      call add_default ('WCLUBB     ', 1, ' ')
    end if
 
    call nucleate_ice_cam_init(mincld, bulk_scale)
@@ -521,8 +522,6 @@ subroutine microp_aero_run ( &
    case ('CLUBB_SGS')
       itim_old = pbuf_old_tim_idx()
       call pbuf_get_field(pbuf, wp2_idx, wp2, start=(/1,1,itim_old/),kount=(/pcols,pverp,1/))
-      call pbuf_get_field(pbuf, wu_emulator_idx, wu_emulator, start=(/1,1,itim_old/),kount=(/pcols,pverp,1/))
-      call pbuf_get_field(pbuf, pemu_mask_idx, pemu_mask, start=(/1,1,itim_old/),kount=(/pcols,1/))
       allocate(tke(pcols,pverp))
       tke(:ncol,:) = (3._r8/2._r8)*wp2(:ncol,:)
 
@@ -530,6 +529,8 @@ subroutine microp_aero_run ( &
       call pbuf_get_field(pbuf, kvh_idx, kvh)
    end select
 
+   call pbuf_get_field(pbuf, wu_emulator_idx, wu_emulator, start=(/1,1,itim_old/),kount=(/pcols,pverp,1/))
+   call pbuf_get_field(pbuf, pemu_mask_idx, pemu_mask, start=(/1,1,itim_old/),kount=(/pcols,1/))
    ! Set minimum values above top_lev.
    wsub(:ncol,:top_lev-1)  = 0.20_r8
    wsubi(:ncol,:top_lev-1) = 0.001_r8

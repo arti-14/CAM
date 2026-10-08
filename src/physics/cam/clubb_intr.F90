@@ -2713,7 +2713,7 @@ end subroutine clubb_init_cnst
       endif
    enddo
 
-   wu_emulator(1:ncol,:) = pwsigma(1:ncol,:)
+   wu_emulator(1:ncol,:) = 0.8*pwsigma(1:ncol,:)
    ! ------------------------------------------------- !
    ! Updraft emulator ends                             !
    ! ------------------------------------------------- !

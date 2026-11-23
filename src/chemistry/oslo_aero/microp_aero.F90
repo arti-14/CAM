@@ -99,6 +99,8 @@ integer :: wp2_idx = -1
 integer :: ast_idx = -1
 integer :: cldo_idx = -1
 integer :: dgnumwet_idx = -1
+integer :: wu_emulator_idx = -1
+integer :: pemu_mask_idx = -1
 
 ! Bulk aerosols
 character(len=20), allocatable :: aername(:)
@@ -196,6 +198,8 @@ subroutine microp_aero_init
       kvh_idx      = pbuf_get_index('kvh')
    end select
 
+   wu_emulator_idx = pbuf_get_index('WU_EMULATOR')
+   pemu_mask_idx = pbuf_get_index('pemu_mask')
    ! clim_modal_aero determines whether modal aerosols are used in the climate calculation.
    ! The modal aerosols can be either prognostic or prescribed.
    call rad_cnst_get_info(0, nmodes=nmodes)
@@ -410,6 +414,8 @@ subroutine microp_aero_run ( &
    real(r8), pointer :: kvh(:,:)        ! vertical eddy diff coef (m2 s-1)
    real(r8), pointer :: tke(:,:)        ! TKE from the UW PBL scheme (m2 s-2)
    real(r8), pointer :: wp2(:,:)        ! CLUBB vertical velocity variance
+   real(r8), pointer :: wu_emulator(:,:)        ! emulator vertical velocity variance
+   REAL(dp), pointer :: pemu_mask(:)    ! emulator mask 
 
    real(r8), pointer :: cldn(:,:)       ! cloud fraction
    real(r8), pointer :: cldo(:,:)       ! old cloud fraction
@@ -616,6 +622,10 @@ subroutine microp_aero_run ( &
       call pbuf_get_field(pbuf, kvh_idx, kvh)
    end select
 
+
+   call pbuf_get_field(pbuf, wu_emulator_idx, wu_emulator, start=(/1,1,itim_old/),kount=(/pcols,pverp,1/))
+   call pbuf_get_field(pbuf, pemu_mask_idx, pemu_mask, start=(/1,1,itim_old/),kount=(/pcols,1/))
+
    ! Set minimum values above top_lev.
    wsub(:ncol,:top_lev-1)  = 0.20_r8
    wsubi(:ncol,:top_lev-1) = 0.001_r8
@@ -643,6 +653,10 @@ subroutine microp_aero_run ( &
             wsubi(i,k) = min(wsubi(i,k), 0.2_r8)
          endif
 
+         if (pemu_mask(i) > 0.) then
+               wsub(i,k) = wu_emulator(i,k) !--using updraft velocity from emulator--!
+         endif
+         
          wsub(i,k)  = max(0.20_r8, wsub(i,k))
 
       end do
